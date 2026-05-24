@@ -1,0 +1,2312 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Грамотей-68 | LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .option-btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            }
+
+        .correct-anim {
+            background-color: #22c55e !important;
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+
+        .wrong-anim {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        #edit-modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header id="main-header" class="hidden sticky top-0 z-50 glass-card border-b border-gray-200">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="Navigation.show('topics')">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h1 class="font-800 text-lg leading-none">Грамотей-68</h1>
+                    <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">МБОУ СОШ №68</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 cursor-pointer" onclick="Navigation.show('stats')">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Средний балл</p>
+                    <p id="nav-score" class="text-indigo-600 font-800 text-lg">0.0</p>
+                </div>
+                <div class="w-10 h-10 bg-indigo-50 rounded-full border-2 border-indigo-100 flex items-center justify-center text-indigo-600 transition hover:bg-indigo-100">
+                    <i id="nav-avatar" class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col justify-center relative">
+
+        <!-- SCREEN: Welcome / Auth -->
+        <section id="screen-welcome" class="hidden animate-slide max-w-md mx-auto w-full">
+            <div class="glass-card p-8 md:p-10 rounded-[32px] shadow-xl text-center">
+                <div class="w-20 h-20 bg-indigo-600 rounded-[24px] flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h2 class="text-3xl font-800 text-slate-900 mb-2">Создай профиль</h2>
+                <p class="text-slate-500 mb-8 font-semibold">Настрой свой школьный аватар</p>
+
+                <div class="mb-6 bg-slate-50 p-5 rounded-3xl text-left">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-widest">Выбери аватар</p>
+                    <div class="flex justify-center gap-3 mb-6" id="auth-avatars">
+                        <button class="auth-ava-btn active w-14 h-14 rounded-2xl bg-indigo-100 border-2 border-indigo-500 text-indigo-600 text-xl transition" data-val="user-astronaut"><i class="fas fa-user-astronaut"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="user-ninja"><i class="fas fa-user-ninja"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="cat"><i class="fas fa-cat"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="dog"><i class="fas fa-dog"></i></button>
+                    </div>
+
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-widest">Кто ты?</p>
+                    <div class="flex justify-center gap-3" id="auth-genders">
+                        <button class="auth-gen-btn active flex-1 py-3 rounded-2xl bg-blue-100 border-2 border-blue-500 text-blue-600 font-bold text-sm transition" data-val="male"><i class="fas fa-mars mr-1"></i> Мальчик</button>
+                        <button class="auth-gen-btn flex-1 py-3 rounded-2xl bg-white border-2 border-transparent text-slate-400 font-bold text-sm transition shadow-sm" data-val="female"><i class="fas fa-venus mr-1"></i> Девочка</button>
+                    </div>
+                </div>
+
+                <input type="text" id="auth-name" placeholder="Введи своё имя..." class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 outline-none transition-all font-bold text-center mb-4 text-lg">
+                <button onclick="User.register()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-800 hover:bg-indigo-700 shadow-xl transition-all text-lg">Войти в класс</button>
+            </div>
+        </section>
+
+        <!-- SCREEN: Topics -->
+        <section id="screen-topics" class="hidden animate-slide w-full">
+            <h2 class="text-3xl font-800 mb-8 text-center text-slate-900">Выбери тренажер</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto" id="topics-grid">
+                <!-- Вставляется через JS -->
+            </div>
+        </section>
+
+        <!-- SCREEN: Subtopics -->
+        <section id="screen-subtopics" class="hidden animate-slide max-w-2xl mx-auto w-full">
+            <button onclick="Navigation.show('topics')" class="text-slate-400 hover:text-indigo-600 mb-6 flex items-center font-bold text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i> Назад к темам
+            </button>
+            <div class="glass-card p-8 rounded-[32px] shadow-xl">
+                <div class="text-center mb-8">
+                    <div id="subtop-icon-container" class="w-16 h-16 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 bg-slate-100 text-slate-500">
+                        <i id="subtop-icon" class="fas fa-list"></i>
+                    </div>
+                    <h2 id="subtop-title" class="text-2xl font-800 text-slate-900">Выбери раздел</h2>
+                    <p class="text-slate-500 font-semibold text-sm mt-1">Что именно будем тренировать?</p>
+                </div>
+                <div id="subtopics-list" class="space-y-3">
+                    <!-- Вставляется через JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Difficulty -->
+        <section id="screen-difficulty" class="hidden animate-slide max-w-md mx-auto w-full">
+            <div class="glass-card p-8 rounded-[32px] shadow-xl text-center">
+                <button onclick="UI.backFromDifficulty()" class="text-slate-400 hover:text-indigo-600 mb-6 flex items-center font-bold text-sm transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Назад
+                </button>
+                <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h2 class="text-2xl font-800 text-slate-900 mb-2">Режим тренировки</h2>
+                <p id="diff-topic-name" class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-6">Тема</p>
+                <div class="space-y-3">
+                    <button onclick="Quiz.startMode('practice', 'easy')" class="w-full p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-500 text-left transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-emerald-700">Ученик (Легко)</span>
+                            <i class="fas fa-seedling text-emerald-500"></i>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-600/70">10 слов. Без таймера. С объяснениями.</span>
+                    </button>
+                    <button onclick="Quiz.startMode('practice', 'hard')" class="w-full p-4 rounded-2xl bg-rose-50 border-2 border-rose-100 hover:border-rose-500 text-left transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-rose-700">Отличник (На время)</span>
+                            <i class="fas fa-fire text-rose-500"></i>
+                        </div>
+                        <span class="text-xs font-bold text-rose-600/70">10 слов. 7 секунд на ответ. Рефлексы.</span>
+                    </button>
+                    <div class="my-4 border-t border-slate-200"></div>
+                    <button onclick="Quiz.startMode('exam', null)" class="w-full p-5 rounded-2xl bg-slate-900 border-2 border-slate-800 hover:border-indigo-500 text-left transition group shadow-lg">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-white text-lg">ЭКЗАМЕН</span>
+                            <i class="fas fa-graduation-cap text-indigo-400"></i>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">20 вопросов • 3 минуты • Идет в зачет</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Quiz -->
+        <section id="screen-quiz" class="hidden animate-slide max-w-2xl mx-auto w-full">
+            <div class="glass-card rounded-[32px] shadow-xl overflow-hidden border border-slate-200">
+
+                <!-- Header -->
+                <div id="quiz-header-practice" class="bg-slate-900 p-6 text-white flex justify-between items-center hidden">
+                    <div>
+                        <p id="quiz-topic-name" class="text-indigo-400 text-[10px] font-800 uppercase tracking-widest mb-1">Тема</p>
+                        <h4 id="quiz-progress-text" class="text-xl font-800">Вопрос 1 / 10</h4>
+                    </div>
+                    <button onclick="Quiz.abort()" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="quiz-header-exam" class="bg-indigo-700 p-6 text-white flex justify-between items-center hidden shadow-inner">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 text-xl animate-pulse"></i>
+                        <div>
+                            <p class="text-indigo-200 text-[10px] font-800 uppercase tracking-widest mb-1">Режим экзамена</p>
+                            <h4 id="exam-progress-text" class="text-xl font-800">1 / 20</h4>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold uppercase text-indigo-200">Время</p>
+                            <p id="exam-timer-text" class="text-2xl font-800 font-mono tracking-wider">03:00</p>
+                        </div>
+                        <button onclick="Quiz.abort()" class="w-8 h-8 bg-indigo-800 rounded-lg flex items-center justify-center text-indigo-300 hover:text-white transition">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="timer-container" class="w-full bg-slate-100 h-1.5 hidden">
+                    <div id="timer-bar" class="bg-indigo-500 h-full w-full"></div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-8 md:p-12 text-center relative">
+                    <p class="text-slate-400 text-sm font-bold uppercase mb-4 tracking-widest">Какая буква пропущена?</p>
+                    <div id="word-display" class="text-3xl md:text-5xl font-800 mb-10 text-slate-800 tracking-tight flex items-center justify-center min-h-[60px] leading-tight">
+                        Слово
+                    </div>
+
+                    <div id="options-grid" class="grid grid-cols-2 gap-4">
+                        <!-- JS Inject -->
+                    </div>
+
+                    <!-- Feedback -->
+                    <div id="feedback-box" class="mt-8 hidden p-5 rounded-2xl text-sm font-bold text-left border shadow-sm"></div>
+                </div>
+
+                <!-- Footer Next Btn -->
+                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-center hidden" id="next-btn-container">
+                    <button onclick="Quiz.next()" class="w-full max-w-xs bg-slate-900 text-white py-4 rounded-2xl font-800 hover:bg-slate-800 shadow-xl transition-all">
+                        Дальше <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Results -->
+        <section id="screen-results" class="hidden animate-slide max-w-md mx-auto w-full text-center">
+            <div class="glass-card p-10 rounded-[40px] shadow-2xl">
+                <div id="res-grade-bg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl text-white shadow-xl transition-colors">
+                    <span id="res-grade-text" class="font-800">5</span>
+                </div>
+                <h2 id="res-title" class="text-3xl font-800 text-slate-900 mb-2">Отлично!</h2>
+                <p id="res-desc" class="text-slate-500 mb-8 font-semibold">Молодец, так держать.</p>
+
+                <!-- Errors Run Stats -->
+                <div id="res-error-stats" class="hidden bg-indigo-50 p-5 rounded-2xl mb-8 border border-indigo-100">
+                    <p class="text-indigo-800 font-bold" id="res-error-text">Ошибок исправлено: 5 из 5</p>
+                </div>
+
+                <div id="res-normal-stats" class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-slate-50 p-5 rounded-[24px] border border-slate-100">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Верно</p>
+                        <p id="res-correct" class="text-2xl font-800 text-emerald-500">0</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-[24px] border border-slate-100">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Ошибок</p>
+                        <p id="res-wrong" class="text-2xl font-800 text-rose-500">0</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3" id="res-actions">
+                    <!-- Buttons injected by JS depending on mode -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Stats & Profile -->
+        <section id="screen-stats" class="hidden animate-slide max-w-4xl mx-auto w-full">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <button onclick="Navigation.show('topics')" class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2 class="text-3xl font-800 text-slate-900">Мой профиль</h2>
+                </div>
+                <button onclick="UI.openEditModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 font-bold text-sm transition">
+                    <i class="fas fa-cog"></i> Настройки
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- User Info -->
+                <div class="glass-card p-6 rounded-[32px] text-center flex flex-col items-center justify-center">
+                    <div class="w-24 h-24 bg-indigo-100 rounded-[1rem] flex items-center justify-center text-indigo-600 text-5xl mb-4 shadow-inner">
+                        <i id="stat-avatar-icon" class="fas fa-user"></i>
+                    </div>
+                    <h3 id="stat-name" class="text-2xl font-800 mb-1 text-slate-900">Имя</h3>
+                    <p id="stat-gender-role" class="text-sm font-bold text-slate-400 uppercase">Ученик 5 класса</p>
+                </div>
+
+                <!-- Global Stats -->
+                <div class="col-span-2 grid grid-cols-2 gap-4">
+                    <div class="glass-card p-6 rounded-[32px] flex flex-col justify-center bg-indigo-50/50">
+                        <p class="text-xs text-indigo-500 font-bold uppercase mb-2">Средний балл</p>
+                        <p id="stat-avg-grade" class="text-6xl font-800 text-indigo-700">0.0</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[32px] flex flex-col justify-center bg-emerald-50/50">
+                        <p class="text-xs text-emerald-500 font-bold uppercase mb-2">Сдано экзаменов</p>
+                        <p id="stat-exams-count" class="text-6xl font-800 text-emerald-700">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Mistakes Book -->
+                <div class="glass-card rounded-[32px] overflow-hidden flex flex-col h-96">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                        <h3 class="text-lg font-800 text-slate-800"><i class="fas fa-book-dead text-rose-400 mr-2"></i> Журнал ошибок</h3>
+                        <span id="stat-errors-count" class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-xs font-bold">0 шт.</span>
+                    </div>
+                    <div class="p-6 overflow-y-auto grow">
+                        <div id="errors-list" class="space-y-4"></div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 bg-white shrink-0">
+                        <button id="btn-work-errors" onclick="Quiz.startMode('errors', null)" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                            Провести работу над ошибками
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Exam History -->
+                <div class="glass-card rounded-[32px] overflow-hidden flex flex-col h-96">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 shrink-0">
+                        <h3 class="text-lg font-800 text-slate-800"><i class="fas fa-history text-indigo-400 mr-2"></i> История экзаменов</h3>
+                    </div>
+                    <div class="p-6 overflow-y-auto grow">
+                        <div id="exams-list" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: Edit Profile -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[32px] shadow-2xl max-w-md w-full relative">
+            <button onclick="UI.closeEditModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-700 text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-800 mb-6">Настройки профиля</h2>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Аватар</p>
+            <div class="flex gap-2 mb-6" id="edit-avatars">
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="user-astronaut"><i class="fas fa-user-astronaut"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="user-ninja"><i class="fas fa-user-ninja"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="cat"><i class="fas fa-cat"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="dog"><i class="fas fa-dog"></i></button>
+            </div>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Пол</p>
+            <div class="flex gap-2 mb-6" id="edit-genders">
+                <button class="edit-gen-btn flex-1 py-2 rounded-xl bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm" data-val="male">Мальчик</button>
+                <button class="edit-gen-btn flex-1 py-2 rounded-xl bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm" data-val="female">Девочка</button>
+            </div>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Имя</p>
+            <input type="text" id="edit-name" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 outline-none font-bold mb-6">
+
+            <button onclick="User.saveEdits()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">Сохранить</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- ОГРОМНАЯ БАЗА ДАННЫХ (СЖАТАЯ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ) --- */
+        // Формат: "Слово|Верно|Неверно|Правило"
+        const RAW_DB = {
+            roots_ao: [
+                "Р_стение|а|о|Перед СТ пишем А.", "Выр_сли|о|а|Корень -РОС- (нет СТ/Щ).", "Отр_сль|а|о|Слово-исключение.",
+                "Р_сток|о|а|Слово-исключение.", "Подр_стковый|о|а|Слово-исключение.", "Р_стов|о|а|Слово-исключение.",
+                "Р_стислав|о|а|Слово-исключение.", "Сл_жение|о|а|В корне -ЛОЖ- перед Ж пишем О.", "Предл_гать|а|о|В корне -ЛАГ- перед Г пишем А.",
+                "Сл_гаемое|а|о|Перед Г пишем А.", "Прил_жение|о|а|Перед Ж пишем О.", "Изл_гать|а|о|Перед Г пишем А.",
+                "З_ря|а|о|В корне -ЗАР-/-ЗОР- без ударения пишем А.", "З_рька|о|а|Под ударением пишем то, что слышим.",
+                "Оз_рение|а|о|Без ударения пишем А.", "Г_реть|о|а|В корне -ГАР-/-ГОР- без ударения пишем О.",
+                "Заг_релый|о|а|Без ударения пишем О.", "Уг_р|а|о|Под ударением в корне -ГАР- пишем А.",
+                "Выг_рки|а|о|Слово-исключение.", "К_саться|а|о|В корне -КАС-/-КОС- пишем А, если дальше есть суффикс А.",
+                "Прик_снуться|о|а|Нет суффикса А после корня, поэтому пишем О.", "Неук_снительно|о|а|Нет суффикса А.",
+                "М_кать (в чай)|а|о|В значении 'погружать в жидкость' пишем А.", "Пром_кать (под дождем)|о|а|В значении 'пропускать жидкость' пишем О.",
+                "Непром_каемый|о|а|В значении 'пропускать жидкость' пишем О.", "Р_внина|а|о|Слово-исключение.",
+                "Ур_внение|а|о|В значении 'равный, одинаковый' пишем А.", "Заар_сли|о|а|Корень -РОС- (нет СТ/Щ).",
+                "Подр_стать|а|о|Перед СТ пишем А.", "Ср_щение|а|о|Перед Щ пишем А.", "Отр_слевой|а|о|Исключение (от 'отрасль').",
+                "З_ревать|о|а|Слово-исключение.", "Приг_реть|о|а|Без ударения пишем О.", "К_сательная|а|о|Есть суффикс А."
+            ],
+            roots_ei: [
+                "Соб_рать|и|е|Есть суффикс А, поэтому И.", "Соб_ру|е|и|Нет суффикса А, поэтому Е.", "Бл_стеть|е|и|Нет суффикса А.",
+                "Бл_стать|и|е|Есть суффикс А, поэтому И.", "Уд_рать|и|е|Есть суффикс А.", "Уд_ру|е|и|Нет суффикса А.",
+                "Зам_реть|е|и|Нет суффикса А.", "Зам_рать|и|е|Есть суффикс А.", "Зап_реть|е|и|Нет суффикса А.",
+                "Зап_рать|и|е|Есть суффикс А.", "Ст_реть|е|и|Нет суффикса А.", "Ст_рать|и|е|Есть суффикс А.",
+                "Расст_лать|и|е|Есть суффикс А.", "Расст_лить|е|и|Нет суффикса А.", "Выж_гать|и|е|Есть суффикс А.",
+                "Выж_гший|е|и|Нет суффикса А.", "Сч_тать|и|е|Есть суффикс А.", "Сч_т|е|и|Нет суффикса А.",
+                "Соч_тание|е|и|Слово-исключение.", "Соч_тать|е|и|Слово-исключение.", "Оп_реться|е|и|Нет суффикса А.",
+                "Заб_рет|е|и|Нет суффикса А.", "Обт_реть|е|и|Нет суффикса А.", "Выб_рать|и|е|Есть суффикс А.",
+                "Разб_рательство|и|е|Есть суффикс А.", "Перест_лать|и|е|Есть суффикс А.", "Выт_р|е|и|Нет суффикса А."
+            ],
+            pref_zs: [
+                "Бе_шумный|с|з|Ш — глухая согласная, пишем С.", "Ра_бег|з|с|Б — звонкая согласная, пишем З.", "И_давать|з|с|Д — звонкая, пишем З.",
+                "Ра_писание|с|з|П — глухая, пишем С.", "Бе_вкусный|з|с|В — звонкая, пишем З.", "Чере_чур|с|з|Ч — глухая, пишем С.",
+                "Здание (первая буква)|з|с|Здесь З — часть корня.", "Сделать (первая буква)|с|з|Приставки З в русском языке не бывает.",
+                "И_чезнуть|с|з|Ч — глухая, пишем С.", "Ра_гадать|з|с|Г — звонкая, пишем З.", "Бе_крайний|с|з|К — глухая, пишем С.",
+                "В_лететь|з|с|Л — сонорная (звонкая), пишем З.", "Бе_жизненный|з|с|Ж — звонкая.", "Во_кликнуть|с|з|К — глухая.",
+                "Ра_жечь|з|с|Ж — звонкая.", "Ни_падать|с|з|П — глухая.", "Бе_полезный|с|з|П — глухая.", "Здоровье (первая буква)|з|с|Здесь З — часть корня.",
+                "Сбить (первая буква)|с|з|Приставки З не бывает.", "Чре_мерный|з|с|М — сонорная (звонкая).", "И_портить|с|з|П - глухая.",
+                "Бе_дарный|з|с|Д - звонкая.", "Ра_щелина|с|з|Щ - глухая.", "Бе_цельный|с|з|Ц - глухая.", "В_бодрить|з|с|Б - звонкая."
+            ],
+            pref_prepri: [
+                "Пр_ехать|и|е|Значение 'приближение'.", "Пр_шить|и|е|Значение 'присоединение'.", "Пр_открыть|и|е|Неполное действие.",
+                "Пр_рвать|е|и|Близко к приставке ПЕРЕ-.", "Пр_милый|е|и|В значении 'очень'.", "Пр_морский|и|е|Пространственная близость.",
+                "Пр_градить|е|и|Близко к ПЕРЕ- (перегородить).", "Пр_сесть|и|е|Неполное действие.", "Пр_увеличить|е|и|В значении 'очень'.",
+                "Пр_клеить|и|е|Присоединение.", "Пр_школьный|и|е|Близость к школе.", "Пр_зидент|е|и|Словарное слово, нужно запомнить.",
+                "Пр_пятствие|е|и|Близко к ПЕРЕ- (перегородить).", "Пр_ступник|е|и|Тот, кто ПЕРЕступает закон.", "Пр_вычка|и|е|Запомнить (действие, доведенное до конца).",
+                "Пр_зирать (врага)|е|и|Запомнить (ненавидеть).", "Пр_зирать (сироту)|и|е|В значении 'дать приют'.", "Пр_дать (друга)|е|и|ПЕРЕдать кому-то.",
+                "Пр_дать (вид)|и|е|Добавить чего-либо.", "Пр_обрести|и|е|В значении 'присоединение в свою пользу'."
+            ],
+            tsya_all: [
+                "Он учит_ся|ся|ься|Что делает? Нет Ь в вопросе.", "Хочу учит_ся|ься|ся|Что делать? В вопросе есть Ь.",
+                "Брат бреет_ся|ся|ься|Что делает? Нет Ь.", "Нужно побрит_ся|ься|ся|Что сделать? Есть Ь.",
+                "Собака кусает_ся|ся|ься|Что делает? Нет Ь.", "Перестань кусат_ся|ься|ся|Что делать? Есть Ь.",
+                "Они смеют_ся|ся|ься|Что делают? Нет Ь.", "Будем смеят_ся|ься|ся|Что делать? Есть Ь.",
+                "Мне нравит_ся|ся|ься|Что делает? Нет Ь.", "Должно понравит_ся|ься|ся|Что сделать? Есть Ь.",
+                "Кошка умывает_ся|ся|ься|Что делает? Нет Ь.", "Пора умыват_ся|ься|ся|Что делать? Есть Ь.",
+                "Легко дышит_ся|ся|ься|Что делает? Нет Ь.", "Завтра встретим_ся|ся|ься|Что сделаем? Нет Ь.",
+                "Попытка не считает_ся|ся|ься|Что делает? Нет Ь.", "Не стоит огорчат_ся|ься|ся|Что делать? Есть Ь.",
+                "Он извиняет_ся|ся|ься|Что делает? Нет Ь.", "Надо извинит_ся|ься|ся|Что сделать? Есть Ь."
+            ],
+            n_adj: [
+                "Деревя_ый|нн|н|Исключение из правила -АН-/-ЯН-.", "Оловя_ый|нн|н|Исключение.", "Стекля_ый|нн|н|Исключение.",
+                "Кож_ый|н|нн|В суффиксе -АН- пишется одна Н.", "Песч_ый|н|нн|В суффиксе -АН- пишется одна Н.",
+                "Глин_ый|н|нн|В суффиксе -ЯН- пишется одна Н.", "Серебря_ый|н|нн|В суффиксе -ЯН- пишется одна Н.",
+                "Гуси_ый|н|нн|В суффиксе -ИН- пишется одна Н.", "Лебеди_ый|н|нн|В суффиксе -ИН- пишется одна Н.",
+                "Станцио_ый|нн|н|В суффиксе -ОНН- пишется НН.", "Традицио_ый|нн|н|В суффиксе -ОНН- пишется НН.",
+                "Утре_ий|нн|н|В суффиксе -ЕНН- пишется НН.", "Искусств_ый|нн|н|В суффиксе -ЕНН- пишется НН.",
+                "Карма_ый|нн|н|Корень на Н + суффикс Н (карман + н).", "Дли_ый|нн|н|Длин + н.",
+                "Тума_ый|нн|н|Туман + н.", "Ветре_ый|н|нн|Исключение (но: безветренный).",
+                "Безветре_ый|нн|н|Есть приставка, поэтому НН.", "Ю_ый|н|нн|Словарное слово (корень юн).",
+                "Сви_ой|н|нн|Словарное слово.", "Румя_ый|н|нн|Словарное слово."
+            ],
+            n_part: [
+                "Вяза_ый (шарф)|н|нн|Отглагольное прилагательное без приставок и зав. слов.",
+                "Связа_ый (шарф)|нн|н|Есть приставка С-, поэтому НН.",
+                "Вяза_ый (мной шарф)|нн|н|Есть зависимое слово 'мной', поэтому НН.",
+                "Жаре_ая (картошка)|н|нн|Отглагольное без приставок.",
+                "Поджаре_ая (картошка)|нн|н|Есть приставка ПОД-.",
+                "Маринова_ый (огурец)|нн|н|Слова на -ОВАННЫЙ / -ЁВАННЫЙ пишутся с НН.",
+                "Асфальтирова_ый|нн|н|Слова на -ОВАННЫЙ.",
+                "Кова_ый|н|нн|Исключение (ов/ев входят в корень).",
+                "Жева_ый|н|нн|Исключение (ев входит в корень).",
+                "Нежда_ый|нн|н|Слово-исключение (запомнить).",
+                "Негада_ый|нн|н|Слово-исключение.",
+                "Невида_ый|нн|н|Слово-исключение.",
+                "Неслыха_ый|нн|н|Слово-исключение.",
+                "Смышле_ый|н|нн|Запомнить.",
+                "Назва_ый (брат)|н|нн|Запомнить.",
+                "Посажё_ый (отец)|н|нн|Запомнить.",
+                "Решё_ая (задача)|нн|н|Образовано от глагола сов. вида (решить).",
+                "Купле_ый|нн|н|От глагола сов. вида (купить)."
+            ],
+            o_e_root: [
+                "Ш_пот|ё|о|Проверочное слово — шептать (есть чередование с Е).",
+                "Ч_рный|ё|о|Проверочное — чернеть.",
+                "Ж_лтый|ё|о|Проверочное — желтеть.",
+                "Пч_лка|ё|о|Проверочное — пчела.",
+                "Щ_тка|ё|о|Проверочное — щетина.",
+                "Ш_в|о|ё|Исключение (нет проверочного с Е).",
+                "Ш_рох|о|ё|Исключение.",
+                "Крыж_вник|о|ё|Исключение.",
+                "Капюш_н|о|ё|Исключение.",
+                "Обж_ра|о|ё|Исключение.",
+                "Трущ_ба|о|ё|Исключение.",
+                "Ч_порный|о|ё|Исключение.",
+                "Ж_лудь|ё|о|Проверочное — желудевый.",
+                "Расч_ска|ё|о|Проверочное — чесать.",
+                "Ш_мпол|о|ё|Исключение."
+            ],
+            o_e_suff: [
+                "Девч_нка|о|ё|В суффиксе существительного под ударением пишем О.",
+                "Мальч_нка|о|ё|Суффикс под ударением.",
+                "Реч_нка|о|ё|Суффикс под ударением.",
+                "Собач_нка|о|ё|Суффикс под ударением.",
+                "Горош_к|е|о|Без ударения пишем Е.",
+                "Ореш_к|е|о|Без ударения пишем Е.",
+                "Холщ_вый|о|ё|В суффиксе прилагательного под ударением О.",
+                "Плюш_вый|е|о|Без ударения пишем Е.",
+                "Свеж_|о|ё|На конце наречий под ударением О.",
+                "Горяч_|о|ё|Под ударением О.",
+                "Певуч_|е|о|Без ударения пишем Е.",
+                "Ещ_|ё|о|Исключение.",
+                "Сгущ_нка|ё|о|В отглагольных словах (суффикс -ЁНВ-) пишем Ё.",
+                "Туш_нка|ё|о|Отглагольное (от тушить).",
+                "Ноч_вка|ё|о|Отглагольное (от ночевать)."
+            ]
+        };
+
+        // Вспомогательная функция для парсинга сжатой базы
+        const parseDB = (arr) => arr.map(str => {
+            const [w, a, wr, r] = str.split('|');
+            return { w, a, wr, r };
+        });
+
+        const CONTENT = {
+            roots: {
+                id: 'roots', title: "Чередующиеся корни", icon: "fa-leaf", color: "emerald",
+                subtopics: [
+                    { id: 'ao', title: 'Корни с А/О', desc: '-гар-/-гор-, -раст-/-рос- и другие', words: parseDB(RAW_DB.roots_ao) },
+                    { id: 'ei', title: 'Корни с Е/И', desc: '-бер-/-бир-, -мер-/-мир- и другие', words: parseDB(RAW_DB.roots_ei) },
+                    { id: 'all', title: 'Все корни сразу', desc: 'Случайные слова на все правила корней', words: [...parseDB(RAW_DB.roots_ao), ...parseDB(RAW_DB.roots_ei)] }
+                ]
+            },
+            prefixes: {
+                id: 'prefixes', title: "Правописание приставок", icon: "fa-puzzle-piece", color: "blue",
+                subtopics: [
+                    { id: 'zs', title: 'Приставки на З/С', desc: 'раз-/рас-, без-/бес- и другие', words: parseDB(RAW_DB.pref_zs) },
+                    { id: 'prepri', title: 'ПРЕ- и ПРИ-', desc: 'Значения приставок', words: parseDB(RAW_DB.pref_prepri) },
+                    { id: 'all', title: 'Все приставки', desc: 'Случайные слова', words: [...parseDB(RAW_DB.pref_zs), ...parseDB(RAW_DB.pref_prepri)] }
+                ]
+            },
+            n_nn: {
+                id: 'n_nn', title: "Н и НН в словах", icon: "fa-font", color: "purple",
+                subtopics: [
+                    { id: 'adj', title: 'В прилагательных', desc: 'Суффиксы -ан-, -ян-, -ин-, -онн-, -енн-', words: parseDB(RAW_DB.n_adj) },
+                    { id: 'part', title: 'В причастиях', desc: 'Отглагольные слова и исключения', words: parseDB(RAW_DB.n_part) },
+                    { id: 'all', title: 'Все случаи Н/НН', desc: 'Перемешанные правила', words: [...parseDB(RAW_DB.n_adj), ...parseDB(RAW_DB.n_part)] }
+                ]
+            },
+            o_e_ship: {
+                id: 'o_e_ship', title: "О / Ё после шипящих", icon: "fa-fire", color: "orange",
+                subtopics: [
+                    { id: 'root', title: 'В корне слова', desc: 'Подбираем однокоренные', words: parseDB(RAW_DB.o_e_root) },
+                    { id: 'suff', title: 'В суффиксах и окончаниях', desc: 'Ударение решает всё', words: parseDB(RAW_DB.o_e_suff) },
+                    { id: 'all', title: 'Все правила на О/Ё', desc: 'Полный тест', words: [...parseDB(RAW_DB.o_e_root), ...parseDB(RAW_DB.o_e_suff)] }
+                ]
+            },
+            tsya: {
+                id: 'tsya', title: "-ТСЯ и -ТЬСЯ в глаголах", icon: "fa-question", color: "amber",
+                subtopics: null, // Нет подразделов
+                words: parseDB(RAW_DB.tsya_all)
+            }
+        };
+
+        /* --- STATE --- */
+        const AppState = {
+            user: { name: '', avatar: 'user-astronaut', gender: 'male', grades: [], history: [], errors: [] },
+            currentTopic: null,
+            currentSubtopicTitle: "",
+            currentWords: [],
+            mode: 'practice',
+            difficulty: 'easy',
+            quizData: [],
+            currentIndex: 0,
+            correctCount: 0,
+            timerId: null,
+            globalTimerId: null,
+            globalTimeLeft: 180,
+            errorsFixedInRun: 0,
+            errorsMadeInRun: []
+        };
+
+        /* --- USER & STORAGE --- */
+        const User = {
+            init() {
+                const saved = localStorage.getItem('gramota68_user_v3');
+                if (saved) {
+                    try {
+                        AppState.user = JSON.parse(saved);
+                        if (AppState.user.name) {
+                            UI.updateHeader();
+                            Navigation.show('topics');
+                            return;
+                        }
+                    } catch(e) { console.error("Corrupt save data"); }
+                }
+
+                this.setupSelectionUI('auth-ava-btn', 'avatar');
+                this.setupSelectionUI('auth-gen-btn', 'gender');
+                Navigation.show('welcome');
+            },
+            setupSelectionUI(className, field) {
+                document.querySelectorAll('.'+className).forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.'+className).forEach(b => {
+                            b.classList.remove('active', 'border-indigo-500', 'bg-indigo-100', 'text-indigo-600', 'border-blue-500', 'bg-blue-100', 'text-blue-600');
+                            b.classList.add('border-transparent', 'text-slate-400', 'bg-white', 'border-slate-200');
+                        });
+                        const t = e.currentTarget;
+                        t.classList.remove('border-transparent', 'border-slate-200', 'text-slate-400', 'bg-white');
+
+                        if(field === 'avatar') t.classList.add('active', 'border-indigo-500', 'bg-indigo-100', 'text-indigo-600');
+                        if(field === 'gender') t.classList.add('active', 'border-blue-500', 'bg-blue-100', 'text-blue-600');
+
+                        AppState.user[field] = t.dataset.val;
+                    });
+                });
+            },
+            register() {
+                const name = document.getElementById('auth-name').value.trim();
+                if(name.length < 2) { alert("Имя должно быть не короче 2 букв!"); return; }
+                AppState.user.name = name;
+                this.save();
+                UI.updateHeader();
+                Navigation.show('topics');
+            },
+            save() {
+                localStorage.setItem('gramota68_user_v3', JSON.stringify(AppState.user));
+            },
+            logError(q) {
+                const exists = AppState.user.errors.find(e => e.w === q.w);
+                if(!exists) {
+                    AppState.user.errors.unshift({ ...q, d: new Date().toLocaleDateString() });
+                    if(AppState.user.errors.length > 50) AppState.user.errors.pop();
+                    this.save();
+                }
+            },
+            removeError(wordStr) {
+                AppState.user.errors = AppState.user.errors.filter(e => e.w !== wordStr);
+                this.save();
+            },
+            addExamResult(topicTitle, grade, correct, total) {
+                AppState.user.history.unshift({
+                    topic: topicTitle,
+                    grade: grade,
+                    correct: correct,
+                    total: total,
+                    date: new Date().toLocaleDateString()
+                });
+                if(AppState.user.history.length > 20) AppState.user.history.pop();
+                AppState.user.grades.push(grade);
+                this.save();
+            },
+            saveEdits() {
+                const name = document.getElementById('edit-name').value.trim();
+                if(name.length >= 2) AppState.user.name = name;
+
+                const avaBtn = document.querySelector('.edit-ava-btn.border-indigo-500');
+                if(avaBtn) AppState.user.avatar = avaBtn.dataset.val;
+
+                const genBtn = document.querySelector('.edit-gen-btn.bg-blue-100, .edit-gen-btn.bg-pink-100');
+                if(genBtn) AppState.user.gender = genBtn.dataset.val;
+
+                this.save();
+                UI.updateHeader();
+                UI.renderStats();
+                UI.closeEditModal();
+            }
+        };
+
+        /* --- NAVIGATION --- */
+        const Navigation = {
+            show(screenId) {
+                document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+                const el = document.getElementById(`screen-${screenId}`);
+                if(el) {
+                    el.classList.remove('hidden');
+                    // Перезапуск анимации
+                    el.classList.remove('animate-slide');
+                    void el.offsetWidth;
+                    el.classList.add('animate-slide');
+                }
+
+                const header = document.getElementById('main-header');
+                if(screenId === 'welcome') header.classList.add('hidden');
+                else header.classList.remove('hidden');
+
+                if(screenId === 'topics') UI.renderTopics();
+                if(screenId === 'stats') UI.renderStats();
+            }
+        };
+
+        /* --- QUIZ ENGINE --- */
+        const Quiz = {
+            selectTopic(topicKey) {
+                const topic = CONTENT[topicKey];
+                AppState.currentTopic = topic;
+
+                if (topic.subtopics && topic.subtopics.length > 0) {
+                    UI.renderSubtopics(topic);
+                    Navigation.show('subtopics');
+                } else {
+                    AppState.currentSubtopicTitle = topic.title;
+                    AppState.currentWords = topic.words;
+                    document.getElementById('diff-topic-name').innerText = topic.title;
+                    Navigation.show('difficulty');
+                }
+            },
+            selectSubtopic(subtopicId) {
+                const sub = AppState.currentTopic.subtopics.find(s => s.id === subtopicId);
+                AppState.currentSubtopicTitle = AppState.currentTopic.title + " / " + sub.title;
+                AppState.currentWords = sub.words;
+                document.getElementById('diff-topic-name').innerText = AppState.currentSubtopicTitle;
+                Navigation.show('difficulty');
+            },
+            startMode(mode, diff) {
+                AppState.mode = mode;
+                AppState.currentIndex = 0;
+                AppState.correctCount = 0;
+
+                let pool = [];
+
+                if (mode === 'practice') {
+                    AppState.difficulty = diff;
+                    pool = [...AppState.currentWords].sort(() => Math.random() - 0.5);
+                    AppState.quizData = pool.slice(0, 10);
+                }
+                else if (mode === 'exam') {
+                    pool = [...AppState.currentWords].sort(() => Math.random() - 0.5);
+                    while(pool.length < 20) { // Защита если слов в пуле меньше 20
+                        pool = pool.concat([...AppState.currentWords].sort(() => Math.random() - 0.5));
+                    }
+                    AppState.quizData = pool.slice(0, 20);
+                    AppState.globalTimeLeft = 180;
+                }
+                else if (mode === 'errors') {
+                    AppState.quizData = [...AppState.user.errors].sort(() => Math.random() - 0.5);
+                    AppState.errorsFixedInRun = 0;
+                    AppState.errorsMadeInRun = [];
+                }
+
+                Navigation.show('quiz');
+                this.setupUIForMode();
+                this.loadQuestion();
+
+                if (mode === 'exam') this.startGlobalTimer();
+            },
+            setupUIForMode() {
+                const hp = document.getElementById('quiz-header-practice');
+                const he = document.getElementById('quiz-header-exam');
+                const tc = document.getElementById('timer-container');
+
+                if(AppState.mode === 'exam') {
+                    hp.classList.add('hidden');
+                    he.classList.remove('hidden');
+                    tc.classList.add('hidden');
+                } else {
+                    hp.classList.remove('hidden');
+                    he.classList.add('hidden');
+                    if(AppState.mode === 'practice' && AppState.difficulty === 'hard') tc.classList.remove('hidden');
+                    else tc.classList.add('hidden');
+
+                    document.getElementById('quiz-topic-name').innerText = AppState.mode === 'errors' ? "Работа над ошибками" : AppState.currentSubtopicTitle;
+                }
+            },
+            loadQuestion() {
+                const q = AppState.quizData[AppState.currentIndex];
+                const total = AppState.quizData.length;
+
+                if(AppState.mode === 'exam') {
+                    document.getElementById('exam-progress-text').innerText = `${AppState.currentIndex + 1} / ${total}`;
+                } else {
+                    document.getElementById('quiz-progress-text').innerText = `Вопрос ${AppState.currentIndex + 1} из ${total}`;
+                }
+
+                // Обработка слов с пробелами (например "Деревя_ый (стул)")
+                const wordParts = q.w.split(' ');
+                let displayWord = wordParts[0].replace('_', '<span class="border-b-4 border-slate-300 w-8 md:w-10 inline-block mx-1"></span>');
+                if(wordParts.length > 1) {
+                    displayWord += ` <span class="text-slate-400 font-semibold text-2xl md:text-3xl ml-2">${wordParts.slice(1).join(' ')}</span>`;
+                }
+
+                document.getElementById('word-display').innerHTML = displayWord;
+
+                document.getElementById('feedback-box').classList.add('hidden');
+                document.getElementById('next-btn-container').classList.add('hidden');
+
+                const opts = [q.a, q.wr].sort(() => Math.random() - 0.5);
+                const grid = document.getElementById('options-grid');
+                grid.innerHTML = '';
+                opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn bg-white border-2 border-slate-200 py-6 rounded-[24px] text-3xl font-800 text-slate-700 uppercase";
+                    btn.innerText = opt;
+                    btn.onclick = () => this.check(opt, btn, wordParts.length > 1 ? wordParts.slice(1).join(' ') : "");
+                    grid.appendChild(btn);
+                });
+
+                if(AppState.mode === 'practice' && AppState.difficulty === 'hard') {
+                    this.startQuestionTimer(7);
+                }
+            },
+            check(selected, btn, contextStr) {
+                this.freezeQuestionTimer();
+
+                const q = AppState.quizData[AppState.currentIndex];
+                const isCorrect = selected.toLowerCase() === q.a.toLowerCase();
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(b => b.disabled = true);
+
+                if(AppState.mode === 'exam') {
+                    if(isCorrect) AppState.correctCount++;
+                    else User.logError(q);
+
+                    btn.classList.add(isCorrect ? 'correct-anim' : 'wrong-anim');
+                    setTimeout(() => this.next(), 400);
+                    return;
+                }
+
+                const wordBase = q.w.split(' ')[0];
+                const contextHtml = contextStr ? ` <span class="text-slate-400 font-semibold text-2xl md:text-3xl ml-2">${contextStr}</span>` : "";
+
+                if(isCorrect) {
+                    btn.classList.add('correct-anim');
+                    AppState.correctCount++;
+
+                    document.getElementById('word-display').innerHTML = wordBase.replace('_', `<span class="text-emerald-500 border-b-4 border-emerald-500 uppercase">${q.a}</span>`) + contextHtml;
+
+                    if(AppState.mode === 'errors') {
+                        if(!AppState.errorsMadeInRun.includes(q.w)) {
+                            AppState.errorsFixedInRun++;
+                            User.removeError(q.w);
+                        }
+                    }
+                    this.showFeedback(true, "Верно! " + q.r);
+                } else {
+                    btn.classList.add('wrong-anim');
+                    buttons.forEach(b => { if(b.innerText.toLowerCase() === q.a.toLowerCase()) b.classList.add('correct-anim'); });
+
+                    document.getElementById('word-display').innerHTML = wordBase.replace('_', `<span class="text-rose-500 border-b-4 border-rose-500 uppercase">${selected}</span>`) + contextHtml;
+
+                    if(AppState.mode === 'errors') {
+                        AppState.errorsMadeInRun.push(q.w);
+                    } else {
+                        User.logError(q);
+                    }
+                    this.showFeedback(false, `Правильно: <b>${q.a.toUpperCase()}</b>. ${q.r}`);
+                }
+            },
+            showFeedback(isCorrect, text) {
+                const fb = document.getElementById('feedback-box');
+                fb.innerHTML = text;
+                fb.className = `mt-8 p-5 rounded-2xl text-sm font-bold text-left border ${isCorrect ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`;
+                fb.classList.remove('hidden');
+                document.getElementById('next-btn-container').classList.remove('hidden');
+            },
+            next() {
+                AppState.currentIndex++;
+                if(AppState.currentIndex < AppState.quizData.length) {
+                    this.loadQuestion();
+                } else {
+                    this.finish();
+                }
+            },
+            abort() {
+                clearInterval(AppState.timerId);
+                clearInterval(AppState.globalTimerId);
+                Navigation.show('topics');
+            },
+
+            startQuestionTimer(seconds) {
+                clearInterval(AppState.timerId);
+                const bar = document.getElementById('timer-bar');
+                bar.style.transition = 'none';
+                bar.style.width = '100%';
+                void bar.offsetWidth;
+                bar.style.transition = `width ${seconds}s linear`;
+                bar.style.width = '0%';
+
+                AppState.timerId = setTimeout(() => {
+                    const buttons = document.querySelectorAll('.option-btn');
+                    buttons.forEach(b => b.disabled = true);
+                    const q = AppState.quizData[AppState.currentIndex];
+                    buttons.forEach(b => { if(b.innerText.toLowerCase() === q.a.toLowerCase()) b.classList.add('correct-anim'); else b.classList.add('opacity-50'); });
+                    User.logError(q);
+                    this.showFeedback(false, "Время вышло! " + q.r);
+                }, seconds * 1000);
+            },
+            freezeQuestionTimer() {
+                clearInterval(AppState.timerId);
+                const bar = document.getElementById('timer-bar');
+                const computedWidth = window.getComputedStyle(bar).width;
+                bar.style.transition = 'none';
+                bar.style.width = computedWidth;
+            },
+            startGlobalTimer() {
+                clearInterval(AppState.globalTimerId);
+                this.updateGlobalTimerText();
+                AppState.globalTimerId = setInterval(() => {
+                    AppState.globalTimeLeft--;
+                    this.updateGlobalTimerText();
+                    if(AppState.globalTimeLeft <= 0) {
+                        clearInterval(AppState.globalTimerId);
+                        this.finish();
+                    }
+                }, 1000);
+            },
+            updateGlobalTimerText() {
+                const m = Math.floor(AppState.globalTimeLeft / 60);
+                const s = AppState.globalTimeLeft % 60;
+                const el = document.getElementById('exam-timer-text');
+                el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if(AppState.globalTimeLeft < 30) el.classList.add('text-rose-400', 'animate-pulse');
+                else el.classList.remove('text-rose-400', 'animate-pulse');
+            },
+
+            finish() {
+                clearInterval(AppState.timerId);
+                clearInterval(AppState.globalTimerId);
+
+                const total = AppState.quizData.length;
+                const correct = AppState.correctCount;
+                const ratio = correct / total;
+                let grade = 2;
+                if(ratio >= 0.9) grade = 5;
+                else if(ratio >= 0.75) grade = 4;
+                else if(ratio >= 0.5) grade = 3;
+
+                const bg = document.getElementById('res-grade-bg');
+                const title = document.getElementById('res-title');
+                const desc = document.getElementById('res-desc');
+                const actions = document.getElementById('res-actions');
+
+                bg.className = "w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl text-white shadow-xl transition-colors";
+                document.getElementById('res-error-stats').classList.add('hidden');
+                document.getElementById('res-normal-stats').classList.add('hidden');
+                document.getElementById('res-grade-text').innerText = grade;
+
+                if(grade === 5) { bg.classList.add('bg-emerald-500'); title.innerText = "Отлично!"; title.className="text-3xl font-800 text-emerald-600 mb-2"; }
+                else if(grade === 4) { bg.classList.add('bg-blue-500'); title.innerText = "Хорошо!"; title.className="text-3xl font-800 text-blue-600 mb-2"; }
+                else if(grade === 3) { bg.classList.add('bg-amber-500'); title.innerText = "Пойдет"; title.className="text-3xl font-800 text-amber-600 mb-2"; }
+                else { bg.classList.add('bg-rose-500'); title.innerText = "Плохо"; title.className="text-3xl font-800 text-rose-600 mb-2"; }
+
+                if(AppState.mode === 'exam') {
+                    desc.innerText = "Экзамен завершен. Результат сохранен в профиль.";
+                    document.getElementById('res-normal-stats').classList.remove('hidden');
+                    document.getElementById('res-correct').innerText = correct;
+                    document.getElementById('res-wrong').innerText = total - correct;
+                    User.addExamResult(AppState.currentSubtopicTitle, grade, correct, total);
+
+                    actions.innerHTML = `
+                        <button onclick="Navigation.show('stats')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg transition">Посмотреть ошибки</button>
+                        <button onclick="Navigation.show('topics')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Выбрать тему</button>
+                    `;
+                }
+                else if(AppState.mode === 'errors') {
+                    bg.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-rose-500');
+                    bg.classList.add('bg-indigo-500');
+                    document.getElementById('res-grade-text').innerHTML = '<i class="fas fa-hammer"></i>';
+
+                    const fixed = AppState.errorsFixedInRun;
+                    const remain = AppState.user.errors.length;
+
+                    if(remain === 0) {
+                        title.innerText = "Ура! Ошибок нет!"; title.className="text-3xl font-800 text-indigo-600 mb-2";
+                        desc.innerText = "Ты исправил абсолютно все свои ошибки. Горжусь тобой!";
+                    } else {
+                        title.innerText = "Тренировка окончена"; title.className="text-3xl font-800 text-indigo-600 mb-2";
+                        desc.innerText = "Часть ошибок исправлена, но есть над чем поработать.";
+                    }
+
+                    document.getElementById('res-error-stats').classList.remove('hidden');
+                    document.getElementById('res-error-text').innerText = `Ошибок исправлено: ${fixed} из ${total}`;
+
+                    let btns = `<button onclick="Navigation.show('stats')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Вернуться в профиль</button>`;
+                    if(remain > 0) {
+                        btns = `<button onclick="Quiz.startMode('errors', null)" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg mb-3 transition">Повторить оставшиеся (${remain})</button>` + btns;
+                    }
+                    actions.innerHTML = btns;
+                }
+                else {
+                    desc.innerText = "Тренировка завершена. Оценка пойдет в средний балл.";
+                    document.getElementById('res-normal-stats').classList.remove('hidden');
+                    document.getElementById('res-correct').innerText = correct;
+                    document.getElementById('res-wrong').innerText = total - correct;
+
+                    AppState.user.grades.push(grade);
+                    User.save();
+
+                    actions.innerHTML = `
+                        <button onclick="Navigation.show('topics')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg transition">Выбрать тему</button>
+                        <button onclick="Navigation.show('stats')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Мой профиль</button>
+                    `;
+                }
+
+                UI.updateHeader();
+                Navigation.show('results');
+            }
+        };
+
+        /* --- UI RENDERERS --- */
+        const UI = {
+            updateHeader() {
+                const g = AppState.user.grades;
+                const avg = g.length ? (g.reduce((a,b)=>a+b,0)/g.length).toFixed(1) : "0.0";
+                document.getElementById('nav-score').innerText = avg;
+                document.getElementById('nav-avatar').className = `fas fa-${AppState.user.avatar}`;
+            },
+            renderTopics() {
+                const grid = document.getElementById('topics-grid');
+                grid.innerHTML = '';
+                Object.values(CONTENT).forEach(t => {
+                    // Подсчет общего количества слов в теме
+                    let wordsCount = t.words ? t.words.length : 0;
+                    if(t.subtopics) {
+                        // берем только 'all' чтобы не считать дубли
+                        const allSub = t.subtopics.find(s => s.id === 'all');
+                        if(allSub) wordsCount = allSub.words.length;
+                    }
+
+                    const el = document.createElement('div');
+                    el.className = "glass-card p-6 rounded-[32px] cursor-pointer hover:border-indigo-500 border-2 border-transparent transition group text-center shadow-sm hover:shadow-xl";
+                    el.onclick = () => Quiz.selectTopic(t.id);
+                    el.innerHTML = `
+                        <div class="w-16 h-16 bg-${t.color}-100 text-${t.color}-500 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition">
+                            <i class="fas ${t.icon}"></i>
+                        </div>
+                        <h4 class="font-800 text-xl mb-2 text-slate-800">${t.title}</h4>
+                        <span class="text-indigo-500 font-bold text-xs uppercase tracking-widest">${wordsCount} слов</span>
+                    `;
+                    grid.appendChild(el);
+                });
+            },
+            renderSubtopics(topic) {
+                document.getElementById('subtop-icon').className = `fas ${topic.icon}`;
+                document.getElementById('subtop-icon-container').className = `w-16 h-16 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 bg-${topic.color}-100 text-${topic.color}-500`;
+
+                const list = document.getElementById('subtopics-list');
+                list.innerHTML = '';
+
+                topic.subtopics.forEach(sub => {
+                    const isAll = sub.id === 'all';
+                    const el = document.createElement('button');
+                    el.className = `w-full p-4 rounded-2xl text-left transition group ${isAll ? 'bg-slate-900 border-2 border-slate-800 hover:border-indigo-500 shadow-lg' : 'bg-white border-2 border-slate-200 hover:border-indigo-400 hover:shadow-md'}`;
+                    el.onclick = () => Quiz.selectSubtopic(sub.id);
+
+                    el.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 ${isAll ? 'text-white' : 'text-slate-800'} text-lg">${sub.title}</span>
+                            <span class="text-xs font-bold ${isAll ? 'text-indigo-400 bg-indigo-900 px-2 py-1 rounded-lg' : 'text-slate-400 bg-slate-100 px-2 py-1 rounded-lg'}">${sub.words.length} слов</span>
+                        </div>
+                        <span class="text-xs font-semibold ${isAll ? 'text-slate-400' : 'text-slate-500'}">${sub.desc}</span>
+                    `;
+                    list.appendChild(el);
+                });
+            },
+            backFromDifficulty() {
+                if (AppState.currentTopic && AppState.currentTopic.subtopics) {
+                    Navigation.show('subtopics');
+                } else {
+                    Navigation.show('topics');
+                }
+            },
+            renderStats() {
+                document.getElementById('stat-name').innerText = AppState.user.name;
+                document.getElementById('stat-avatar-icon').className = `fas fa-${AppState.user.avatar}`;
+                document.getElementById('stat-gender-role').innerText = AppState.user.gender === 'female' ? 'Ученица 5 класса' : 'Ученик 5 класса';
+
+                const g = AppState.user.grades;
+                document.getElementById('stat-avg-grade').innerText = g.length ? (g.reduce((a,b)=>a+b,0)/g.length).toFixed(1) : "0.0";
+                document.getElementById('stat-exams-count').innerText = AppState.user.history.length;
+
+                const errList = document.getElementById('errors-list');
+                errList.innerHTML = '';
+                document.getElementById('stat-errors-count').innerText = `${AppState.user.errors.length} шт.`;
+                const btnWork = document.getElementById('btn-work-errors');
+
+                if(AppState.user.errors.length === 0) {
+                    errList.innerHTML = '<div class="text-center text-slate-400 py-8"><i class="fas fa-check-circle text-4xl text-emerald-200 mb-3"></i><p class="font-bold">Ошибок нет. Идеально!</p></div>';
+                    btnWork.disabled = true;
+                } else {
+                    btnWork.disabled = false;
+                    AppState.user.errors.forEach(e => {
+                        errList.innerHTML += `
+                            <div class="p-4 bg-white border border-rose-100 rounded-2xl shadow-sm">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-800 text-lg text-slate-800">${e.w.replace('_', '<span class="text-rose-500">_</span>')}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded">${e.d}</span>
+                                </div>
+                                <p class="text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl border-l-4 border-indigo-400">${e.r}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                const histList = document.getElementById('exams-list');
+                histList.innerHTML = '';
+                if(AppState.user.history.length === 0) {
+                    histList.innerHTML = '<p class="text-center text-slate-400 font-bold py-8">Ты еще не сдавал экзамены.</p>';
+                } else {
+                    AppState.user.history.forEach(h => {
+                        let color = h.grade === 5 ? 'emerald' : h.grade === 4 ? 'blue' : h.grade === 3 ? 'amber' : 'rose';
+                        histList.innerHTML += `
+                            <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                <div>
+                                    <p class="font-800 text-slate-800 leading-tight">${h.topic}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase">${h.date} • Верно: ${h.correct}/${h.total}</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-${color}-100 text-${color}-600 flex items-center justify-center font-800 shadow-inner">
+                                    ${h.grade}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            },
+
+            openEditModal() {
+                document.getElementById('edit-modal').classList.remove('hidden');
+                document.getElementById('edit-name').value = AppState.user.name;
+
+                const setupEditBtns = (className, field, activeColors) => {
+                    document.querySelectorAll('.'+className).forEach(btn => {
+                        if(btn.dataset.val === AppState.user[field]) {
+                            btn.className = `${className} ${activeColors} font-bold text-sm transition`;
+                            if(field==='avatar') btn.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else btn.classList.add('flex-1','py-2','rounded-xl');
+                        } else {
+                            btn.className = `${className} bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm transition hover:bg-slate-50`;
+                            if(field==='avatar') btn.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else btn.classList.add('flex-1','py-2','rounded-xl');
+                        }
+
+                        btn.onclick = (e) => {
+                            document.querySelectorAll('.'+className).forEach(b => {
+                                b.className = `${className} bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm transition hover:bg-slate-50`;
+                                if(field==='avatar') b.classList.add('w-12','h-12','rounded-xl','text-lg');
+                                else b.classList.add('flex-1','py-2','rounded-xl');
+                            });
+                            e.currentTarget.className = `${className} ${activeColors} font-bold text-sm transition`;
+                            if(field==='avatar') e.currentTarget.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else e.currentTarget.classList.add('flex-1','py-2','rounded-xl');
+                        };
+                    });
+                };
+
+                setupEditBtns('edit-ava-btn', 'avatar', 'border-2 border-indigo-500 bg-indigo-100 text-indigo-600');
+
+                document.querySelectorAll('.edit-gen-btn').forEach(btn => {
+                    const isActive = btn.dataset.val === AppState.user.gender;
+                    const colors = btn.dataset.val === 'male' ? 'border-2 border-blue-500 bg-blue-100 text-blue-600' : 'border-2 border-pink-500 bg-pink-100 text-pink-600';
+                    btn.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition ${isActive ? colors : 'bg-white border-2 border-slate-200 text-slate-400 hover:bg-slate-50'}`;
+
+                    btn.onclick = (e) => {
+                        document.querySelectorAll('.edit-gen-btn').forEach(b => b.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition bg-white border-2 border-slate-200 text-slate-400 hover:bg-slate-50`);
+                        e.currentTarget.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition ${colors}`;
+                    }
+                });
+            },
+            closeEditModal() {
+                document.getElementById('edit-modal').classList.add('hidden');
+            }
+        };
+
+        window.onload = () => { User.init(); };
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Грамотей-68 | LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .option-btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            }
+
+        .correct-anim {
+            background-color: #22c55e !important;
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+
+        .wrong-anim {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        #edit-modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header id="main-header" class="hidden sticky top-0 z-50 glass-card border-b border-gray-200">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="Navigation.show('topics')">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h1 class="font-800 text-lg leading-none">Грамотей-68</h1>
+                    <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">МБОУ СОШ №68</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 cursor-pointer" onclick="Navigation.show('stats')">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Средний балл</p>
+                    <p id="nav-score" class="text-indigo-600 font-800 text-lg">0.0</p>
+                </div>
+                <div class="w-10 h-10 bg-indigo-50 rounded-full border-2 border-indigo-100 flex items-center justify-center text-indigo-600 transition hover:bg-indigo-100">
+                    <i id="nav-avatar" class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col justify-center relative">
+
+        <!-- SCREEN: Welcome / Auth -->
+        <section id="screen-welcome" class="hidden animate-slide max-w-md mx-auto w-full">
+            <div class="glass-card p-8 md:p-10 rounded-[32px] shadow-xl text-center">
+                <div class="w-20 h-20 bg-indigo-600 rounded-[24px] flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h2 class="text-3xl font-800 text-slate-900 mb-2">Создай профиль</h2>
+                <p class="text-slate-500 mb-8 font-semibold">Настрой свой школьный аватар</p>
+
+                <div class="mb-6 bg-slate-50 p-5 rounded-3xl text-left">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-widest">Выбери аватар</p>
+                    <div class="flex justify-center gap-3 mb-6" id="auth-avatars">
+                        <button class="auth-ava-btn active w-14 h-14 rounded-2xl bg-indigo-100 border-2 border-indigo-500 text-indigo-600 text-xl transition" data-val="user-astronaut"><i class="fas fa-user-astronaut"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="user-ninja"><i class="fas fa-user-ninja"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="cat"><i class="fas fa-cat"></i></button>
+                        <button class="auth-ava-btn w-14 h-14 rounded-2xl bg-white border-2 border-transparent text-slate-400 text-xl transition shadow-sm" data-val="dog"><i class="fas fa-dog"></i></button>
+                    </div>
+
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-widest">Кто ты?</p>
+                    <div class="flex justify-center gap-3" id="auth-genders">
+                        <button class="auth-gen-btn active flex-1 py-3 rounded-2xl bg-blue-100 border-2 border-blue-500 text-blue-600 font-bold text-sm transition" data-val="male"><i class="fas fa-mars mr-1"></i> Мальчик</button>
+                        <button class="auth-gen-btn flex-1 py-3 rounded-2xl bg-white border-2 border-transparent text-slate-400 font-bold text-sm transition shadow-sm" data-val="female"><i class="fas fa-venus mr-1"></i> Девочка</button>
+                    </div>
+                </div>
+
+                <input type="text" id="auth-name" placeholder="Введи своё имя..." class="w-full px-6 py-4 rounded-2xl bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 outline-none transition-all font-bold text-center mb-4 text-lg">
+                <button onclick="User.register()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-800 hover:bg-indigo-700 shadow-xl transition-all text-lg">Войти в класс</button>
+            </div>
+        </section>
+
+        <!-- SCREEN: Topics -->
+        <section id="screen-topics" class="hidden animate-slide w-full">
+            <h2 class="text-3xl font-800 mb-8 text-center text-slate-900">Выбери тренажер</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto" id="topics-grid">
+                <!-- Вставляется через JS -->
+            </div>
+        </section>
+
+        <!-- SCREEN: Subtopics -->
+        <section id="screen-subtopics" class="hidden animate-slide max-w-2xl mx-auto w-full">
+            <button onclick="Navigation.show('topics')" class="text-slate-400 hover:text-indigo-600 mb-6 flex items-center font-bold text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i> Назад к темам
+            </button>
+            <div class="glass-card p-8 rounded-[32px] shadow-xl">
+                <div class="text-center mb-8">
+                    <div id="subtop-icon-container" class="w-16 h-16 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 bg-slate-100 text-slate-500">
+                        <i id="subtop-icon" class="fas fa-list"></i>
+                    </div>
+                    <h2 id="subtop-title" class="text-2xl font-800 text-slate-900">Выбери раздел</h2>
+                    <p class="text-slate-500 font-semibold text-sm mt-1">Что именно будем тренировать?</p>
+                </div>
+                <div id="subtopics-list" class="space-y-3">
+                    <!-- Вставляется через JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Difficulty -->
+        <section id="screen-difficulty" class="hidden animate-slide max-w-md mx-auto w-full">
+            <div class="glass-card p-8 rounded-[32px] shadow-xl text-center">
+                <button onclick="UI.backFromDifficulty()" class="text-slate-400 hover:text-indigo-600 mb-6 flex items-center font-bold text-sm transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Назад
+                </button>
+                <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h2 class="text-2xl font-800 text-slate-900 mb-2">Режим тренировки</h2>
+                <p id="diff-topic-name" class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-6">Тема</p>
+                <div class="space-y-3">
+                    <button onclick="Quiz.startMode('practice', 'easy')" class="w-full p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-500 text-left transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-emerald-700">Ученик (Легко)</span>
+                            <i class="fas fa-seedling text-emerald-500"></i>
+                        </div>
+                        <span class="text-xs font-bold text-emerald-600/70">10 слов. Без таймера. С объяснениями.</span>
+                    </button>
+                    <button onclick="Quiz.startMode('practice', 'hard')" class="w-full p-4 rounded-2xl bg-rose-50 border-2 border-rose-100 hover:border-rose-500 text-left transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-rose-700">Отличник (На время)</span>
+                            <i class="fas fa-fire text-rose-500"></i>
+                        </div>
+                        <span class="text-xs font-bold text-rose-600/70">10 слов. 7 секунд на ответ. Рефлексы.</span>
+                    </button>
+                    <div class="my-4 border-t border-slate-200"></div>
+                    <button onclick="Quiz.startMode('exam', null)" class="w-full p-5 rounded-2xl bg-slate-900 border-2 border-slate-800 hover:border-indigo-500 text-left transition group shadow-lg">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 text-white text-lg">ЭКЗАМЕН</span>
+                            <i class="fas fa-graduation-cap text-indigo-400"></i>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">20 вопросов • 3 минуты • Идет в зачет</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Quiz -->
+        <section id="screen-quiz" class="hidden animate-slide max-w-2xl mx-auto w-full">
+            <div class="glass-card rounded-[32px] shadow-xl overflow-hidden border border-slate-200">
+
+                <!-- Header -->
+                <div id="quiz-header-practice" class="bg-slate-900 p-6 text-white flex justify-between items-center hidden">
+                    <div>
+                        <p id="quiz-topic-name" class="text-indigo-400 text-[10px] font-800 uppercase tracking-widest mb-1">Тема</p>
+                        <h4 id="quiz-progress-text" class="text-xl font-800">Вопрос 1 / 10</h4>
+                    </div>
+                    <button onclick="Quiz.abort()" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="quiz-header-exam" class="bg-indigo-700 p-6 text-white flex justify-between items-center hidden shadow-inner">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 text-xl animate-pulse"></i>
+                        <div>
+                            <p class="text-indigo-200 text-[10px] font-800 uppercase tracking-widest mb-1">Режим экзамена</p>
+                            <h4 id="exam-progress-text" class="text-xl font-800">1 / 20</h4>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold uppercase text-indigo-200">Время</p>
+                            <p id="exam-timer-text" class="text-2xl font-800 font-mono tracking-wider">03:00</p>
+                        </div>
+                        <button onclick="Quiz.abort()" class="w-8 h-8 bg-indigo-800 rounded-lg flex items-center justify-center text-indigo-300 hover:text-white transition">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="timer-container" class="w-full bg-slate-100 h-1.5 hidden">
+                    <div id="timer-bar" class="bg-indigo-500 h-full w-full"></div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-8 md:p-12 text-center relative">
+                    <p class="text-slate-400 text-sm font-bold uppercase mb-4 tracking-widest">Какая буква пропущена?</p>
+                    <div id="word-display" class="text-3xl md:text-5xl font-800 mb-10 text-slate-800 tracking-tight flex items-center justify-center min-h-[60px] leading-tight">
+                        Слово
+                    </div>
+
+                    <div id="options-grid" class="grid grid-cols-2 gap-4">
+                        <!-- JS Inject -->
+                    </div>
+
+                    <!-- Feedback -->
+                    <div id="feedback-box" class="mt-8 hidden p-5 rounded-2xl text-sm font-bold text-left border shadow-sm"></div>
+                </div>
+
+                <!-- Footer Next Btn -->
+                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-center hidden" id="next-btn-container">
+                    <button onclick="Quiz.next()" class="w-full max-w-xs bg-slate-900 text-white py-4 rounded-2xl font-800 hover:bg-slate-800 shadow-xl transition-all">
+                        Дальше <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Results -->
+        <section id="screen-results" class="hidden animate-slide max-w-md mx-auto w-full text-center">
+            <div class="glass-card p-10 rounded-[40px] shadow-2xl">
+                <div id="res-grade-bg" class="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl text-white shadow-xl transition-colors">
+                    <span id="res-grade-text" class="font-800">5</span>
+                </div>
+                <h2 id="res-title" class="text-3xl font-800 text-slate-900 mb-2">Отлично!</h2>
+                <p id="res-desc" class="text-slate-500 mb-8 font-semibold">Молодец, так держать.</p>
+
+                <!-- Errors Run Stats -->
+                <div id="res-error-stats" class="hidden bg-indigo-50 p-5 rounded-2xl mb-8 border border-indigo-100">
+                    <p class="text-indigo-800 font-bold" id="res-error-text">Ошибок исправлено: 5 из 5</p>
+                </div>
+
+                <div id="res-normal-stats" class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-slate-50 p-5 rounded-[24px] border border-slate-100">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Верно</p>
+                        <p id="res-correct" class="text-2xl font-800 text-emerald-500">0</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-[24px] border border-slate-100">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Ошибок</p>
+                        <p id="res-wrong" class="text-2xl font-800 text-rose-500">0</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3" id="res-actions">
+                    <!-- Buttons injected by JS depending on mode -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Stats & Profile -->
+        <section id="screen-stats" class="hidden animate-slide max-w-4xl mx-auto w-full">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <button onclick="Navigation.show('topics')" class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2 class="text-3xl font-800 text-slate-900">Мой профиль</h2>
+                </div>
+                <button onclick="UI.openEditModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 font-bold text-sm transition">
+                    <i class="fas fa-cog"></i> Настройки
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- User Info -->
+                <div class="glass-card p-6 rounded-[32px] text-center flex flex-col items-center justify-center">
+                    <div class="w-24 h-24 bg-indigo-100 rounded-[1rem] flex items-center justify-center text-indigo-600 text-5xl mb-4 shadow-inner">
+                        <i id="stat-avatar-icon" class="fas fa-user"></i>
+                    </div>
+                    <h3 id="stat-name" class="text-2xl font-800 mb-1 text-slate-900">Имя</h3>
+                    <p id="stat-gender-role" class="text-sm font-bold text-slate-400 uppercase">Ученик 5 класса</p>
+                </div>
+
+                <!-- Global Stats -->
+                <div class="col-span-2 grid grid-cols-2 gap-4">
+                    <div class="glass-card p-6 rounded-[32px] flex flex-col justify-center bg-indigo-50/50">
+                        <p class="text-xs text-indigo-500 font-bold uppercase mb-2">Средний балл</p>
+                        <p id="stat-avg-grade" class="text-6xl font-800 text-indigo-700">0.0</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[32px] flex flex-col justify-center bg-emerald-50/50">
+                        <p class="text-xs text-emerald-500 font-bold uppercase mb-2">Сдано экзаменов</p>
+                        <p id="stat-exams-count" class="text-6xl font-800 text-emerald-700">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Mistakes Book -->
+                <div class="glass-card rounded-[32px] overflow-hidden flex flex-col h-96">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
+                        <h3 class="text-lg font-800 text-slate-800"><i class="fas fa-book-dead text-rose-400 mr-2"></i> Журнал ошибок</h3>
+                        <span id="stat-errors-count" class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-xs font-bold">0 шт.</span>
+                    </div>
+                    <div class="p-6 overflow-y-auto grow">
+                        <div id="errors-list" class="space-y-4"></div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 bg-white shrink-0">
+                        <button id="btn-work-errors" onclick="Quiz.startMode('errors', null)" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                            Провести работу над ошибками
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Exam History -->
+                <div class="glass-card rounded-[32px] overflow-hidden flex flex-col h-96">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50 shrink-0">
+                        <h3 class="text-lg font-800 text-slate-800"><i class="fas fa-history text-indigo-400 mr-2"></i> История экзаменов</h3>
+                    </div>
+                    <div class="p-6 overflow-y-auto grow">
+                        <div id="exams-list" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: Edit Profile -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[32px] shadow-2xl max-w-md w-full relative">
+            <button onclick="UI.closeEditModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-700 text-xl"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-800 mb-6">Настройки профиля</h2>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Аватар</p>
+            <div class="flex gap-2 mb-6" id="edit-avatars">
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="user-astronaut"><i class="fas fa-user-astronaut"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="user-ninja"><i class="fas fa-user-ninja"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="cat"><i class="fas fa-cat"></i></button>
+                <button class="edit-ava-btn w-12 h-12 rounded-xl bg-white border-2 border-slate-200 text-slate-400 text-lg" data-val="dog"><i class="fas fa-dog"></i></button>
+            </div>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Пол</p>
+            <div class="flex gap-2 mb-6" id="edit-genders">
+                <button class="edit-gen-btn flex-1 py-2 rounded-xl bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm" data-val="male">Мальчик</button>
+                <button class="edit-gen-btn flex-1 py-2 rounded-xl bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm" data-val="female">Девочка</button>
+            </div>
+
+            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Имя</p>
+            <input type="text" id="edit-name" class="w-full px-4 py-3 rounded-xl bg-slate-50 border-2 border-slate-200 focus:border-indigo-500 outline-none font-bold mb-6">
+
+            <button onclick="User.saveEdits()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700">Сохранить</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- ОГРОМНАЯ БАЗА ДАННЫХ (СЖАТАЯ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ) --- */
+        // Формат: "Слово|Верно|Неверно|Правило"
+        const RAW_DB = {
+            roots_ao: [
+                "Р_стение|а|о|Перед СТ пишем А.", "Выр_сли|о|а|Корень -РОС- (нет СТ/Щ).", "Отр_сль|а|о|Слово-исключение.",
+                "Р_сток|о|а|Слово-исключение.", "Подр_стковый|о|а|Слово-исключение.", "Р_стов|о|а|Слово-исключение.",
+                "Р_стислав|о|а|Слово-исключение.", "Сл_жение|о|а|В корне -ЛОЖ- перед Ж пишем О.", "Предл_гать|а|о|В корне -ЛАГ- перед Г пишем А.",
+                "Сл_гаемое|а|о|Перед Г пишем А.", "Прил_жение|о|а|Перед Ж пишем О.", "Изл_гать|а|о|Перед Г пишем А.",
+                "З_ря|а|о|В корне -ЗАР-/-ЗОР- без ударения пишем А.", "З_рька|о|а|Под ударением пишем то, что слышим.",
+                "Оз_рение|а|о|Без ударения пишем А.", "Г_реть|о|а|В корне -ГАР-/-ГОР- без ударения пишем О.",
+                "Заг_релый|о|а|Без ударения пишем О.", "Уг_р|а|о|Под ударением в корне -ГАР- пишем А.",
+                "Выг_рки|а|о|Слово-исключение.", "К_саться|а|о|В корне -КАС-/-КОС- пишем А, если дальше есть суффикс А.",
+                "Прик_снуться|о|а|Нет суффикса А после корня, поэтому пишем О.", "Неук_снительно|о|а|Нет суффикса А.",
+                "М_кать (в чай)|а|о|В значении 'погружать в жидкость' пишем А.", "Пром_кать (под дождем)|о|а|В значении 'пропускать жидкость' пишем О.",
+                "Непром_каемый|о|а|В значении 'пропускать жидкость' пишем О.", "Р_внина|а|о|Слово-исключение.",
+                "Ур_внение|а|о|В значении 'равный, одинаковый' пишем А.", "Заар_сли|о|а|Корень -РОС- (нет СТ/Щ).",
+                "Подр_стать|а|о|Перед СТ пишем А.", "Ср_щение|а|о|Перед Щ пишем А.", "Отр_слевой|а|о|Исключение (от 'отрасль').",
+                "З_ревать|о|а|Слово-исключение.", "Приг_реть|о|а|Без ударения пишем О.", "К_сательная|а|о|Есть суффикс А."
+            ],
+            roots_ei: [
+                "Соб_рать|и|е|Есть суффикс А, поэтому И.", "Соб_ру|е|и|Нет суффикса А, поэтому Е.", "Бл_стеть|е|и|Нет суффикса А.",
+                "Бл_стать|и|е|Есть суффикс А, поэтому И.", "Уд_рать|и|е|Есть суффикс А.", "Уд_ру|е|и|Нет суффикса А.",
+                "Зам_реть|е|и|Нет суффикса А.", "Зам_рать|и|е|Есть суффикс А.", "Зап_реть|е|и|Нет суффикса А.",
+                "Зап_рать|и|е|Есть суффикс А.", "Ст_реть|е|и|Нет суффикса А.", "Ст_рать|и|е|Есть суффикс А.",
+                "Расст_лать|и|е|Есть суффикс А.", "Расст_лить|е|и|Нет суффикса А.", "Выж_гать|и|е|Есть суффикс А.",
+                "Выж_гший|е|и|Нет суффикса А.", "Сч_тать|и|е|Есть суффикс А.", "Сч_т|е|и|Нет суффикса А.",
+                "Соч_тание|е|и|Слово-исключение.", "Соч_тать|е|и|Слово-исключение.", "Оп_реться|е|и|Нет суффикса А.",
+                "Заб_рет|е|и|Нет суффикса А.", "Обт_реть|е|и|Нет суффикса А.", "Выб_рать|и|е|Есть суффикс А.",
+                "Разб_рательство|и|е|Есть суффикс А.", "Перест_лать|и|е|Есть суффикс А.", "Выт_р|е|и|Нет суффикса А."
+            ],
+            pref_zs: [
+                "Бе_шумный|с|з|Ш — глухая согласная, пишем С.", "Ра_бег|з|с|Б — звонкая согласная, пишем З.", "И_давать|з|с|Д — звонкая, пишем З.",
+                "Ра_писание|с|з|П — глухая, пишем С.", "Бе_вкусный|з|с|В — звонкая, пишем З.", "Чере_чур|с|з|Ч — глухая, пишем С.",
+                "Здание (первая буква)|з|с|Здесь З — часть корня.", "Сделать (первая буква)|с|з|Приставки З в русском языке не бывает.",
+                "И_чезнуть|с|з|Ч — глухая, пишем С.", "Ра_гадать|з|с|Г — звонкая, пишем З.", "Бе_крайний|с|з|К — глухая, пишем С.",
+                "В_лететь|з|с|Л — сонорная (звонкая), пишем З.", "Бе_жизненный|з|с|Ж — звонкая.", "Во_кликнуть|с|з|К — глухая.",
+                "Ра_жечь|з|с|Ж — звонкая.", "Ни_падать|с|з|П — глухая.", "Бе_полезный|с|з|П — глухая.", "Здоровье (первая буква)|з|с|Здесь З — часть корня.",
+                "Сбить (первая буква)|с|з|Приставки З не бывает.", "Чре_мерный|з|с|М — сонорная (звонкая).", "И_портить|с|з|П - глухая.",
+                "Бе_дарный|з|с|Д - звонкая.", "Ра_щелина|с|з|Щ - глухая.", "Бе_цельный|с|з|Ц - глухая.", "В_бодрить|з|с|Б - звонкая."
+            ],
+            pref_prepri: [
+                "Пр_ехать|и|е|Значение 'приближение'.", "Пр_шить|и|е|Значение 'присоединение'.", "Пр_открыть|и|е|Неполное действие.",
+                "Пр_рвать|е|и|Близко к приставке ПЕРЕ-.", "Пр_милый|е|и|В значении 'очень'.", "Пр_морский|и|е|Пространственная близость.",
+                "Пр_градить|е|и|Близко к ПЕРЕ- (перегородить).", "Пр_сесть|и|е|Неполное действие.", "Пр_увеличить|е|и|В значении 'очень'.",
+                "Пр_клеить|и|е|Присоединение.", "Пр_школьный|и|е|Близость к школе.", "Пр_зидент|е|и|Словарное слово, нужно запомнить.",
+                "Пр_пятствие|е|и|Близко к ПЕРЕ- (перегородить).", "Пр_ступник|е|и|Тот, кто ПЕРЕступает закон.", "Пр_вычка|и|е|Запомнить (действие, доведенное до конца).",
+                "Пр_зирать (врага)|е|и|Запомнить (ненавидеть).", "Пр_зирать (сироту)|и|е|В значении 'дать приют'.", "Пр_дать (друга)|е|и|ПЕРЕдать кому-то.",
+                "Пр_дать (вид)|и|е|Добавить чего-либо.", "Пр_обрести|и|е|В значении 'присоединение в свою пользу'."
+            ],
+            tsya_all: [
+                "Он учит_ся|ся|ься|Что делает? Нет Ь в вопросе.", "Хочу учит_ся|ься|ся|Что делать? В вопросе есть Ь.",
+                "Брат бреет_ся|ся|ься|Что делает? Нет Ь.", "Нужно побрит_ся|ься|ся|Что сделать? Есть Ь.",
+                "Собака кусает_ся|ся|ься|Что делает? Нет Ь.", "Перестань кусат_ся|ься|ся|Что делать? Есть Ь.",
+                "Они смеют_ся|ся|ься|Что делают? Нет Ь.", "Будем смеят_ся|ься|ся|Что делать? Есть Ь.",
+                "Мне нравит_ся|ся|ься|Что делает? Нет Ь.", "Должно понравит_ся|ься|ся|Что сделать? Есть Ь.",
+                "Кошка умывает_ся|ся|ься|Что делает? Нет Ь.", "Пора умыват_ся|ься|ся|Что делать? Есть Ь.",
+                "Легко дышит_ся|ся|ься|Что делает? Нет Ь.", "Завтра встретим_ся|ся|ься|Что сделаем? Нет Ь.",
+                "Попытка не считает_ся|ся|ься|Что делает? Нет Ь.", "Не стоит огорчат_ся|ься|ся|Что делать? Есть Ь.",
+                "Он извиняет_ся|ся|ься|Что делает? Нет Ь.", "Надо извинит_ся|ься|ся|Что сделать? Есть Ь."
+            ],
+            n_adj: [
+                "Деревя_ый|нн|н|Исключение из правила -АН-/-ЯН-.", "Оловя_ый|нн|н|Исключение.", "Стекля_ый|нн|н|Исключение.",
+                "Кож_ый|н|нн|В суффиксе -АН- пишется одна Н.", "Песч_ый|н|нн|В суффиксе -АН- пишется одна Н.",
+                "Глин_ый|н|нн|В суффиксе -ЯН- пишется одна Н.", "Серебря_ый|н|нн|В суффиксе -ЯН- пишется одна Н.",
+                "Гуси_ый|н|нн|В суффиксе -ИН- пишется одна Н.", "Лебеди_ый|н|нн|В суффиксе -ИН- пишется одна Н.",
+                "Станцио_ый|нн|н|В суффиксе -ОНН- пишется НН.", "Традицио_ый|нн|н|В суффиксе -ОНН- пишется НН.",
+                "Утре_ий|нн|н|В суффиксе -ЕНН- пишется НН.", "Искусств_ый|нн|н|В суффиксе -ЕНН- пишется НН.",
+                "Карма_ый|нн|н|Корень на Н + суффикс Н (карман + н).", "Дли_ый|нн|н|Длин + н.",
+                "Тума_ый|нн|н|Туман + н.", "Ветре_ый|н|нн|Исключение (но: безветренный).",
+                "Безветре_ый|нн|н|Есть приставка, поэтому НН.", "Ю_ый|н|нн|Словарное слово (корень юн).",
+                "Сви_ой|н|нн|Словарное слово.", "Румя_ый|н|нн|Словарное слово."
+            ],
+            n_part: [
+                "Вяза_ый (шарф)|н|нн|Отглагольное прилагательное без приставок и зав. слов.",
+                "Связа_ый (шарф)|нн|н|Есть приставка С-, поэтому НН.",
+                "Вяза_ый (мной шарф)|нн|н|Есть зависимое слово 'мной', поэтому НН.",
+                "Жаре_ая (картошка)|н|нн|Отглагольное без приставок.",
+                "Поджаре_ая (картошка)|нн|н|Есть приставка ПОД-.",
+                "Маринова_ый (огурец)|нн|н|Слова на -ОВАННЫЙ / -ЁВАННЫЙ пишутся с НН.",
+                "Асфальтирова_ый|нн|н|Слова на -ОВАННЫЙ.",
+                "Кова_ый|н|нн|Исключение (ов/ев входят в корень).",
+                "Жева_ый|н|нн|Исключение (ев входит в корень).",
+                "Нежда_ый|нн|н|Слово-исключение (запомнить).",
+                "Негада_ый|нн|н|Слово-исключение.",
+                "Невида_ый|нн|н|Слово-исключение.",
+                "Неслыха_ый|нн|н|Слово-исключение.",
+                "Смышле_ый|н|нн|Запомнить.",
+                "Назва_ый (брат)|н|нн|Запомнить.",
+                "Посажё_ый (отец)|н|нн|Запомнить.",
+                "Решё_ая (задача)|нн|н|Образовано от глагола сов. вида (решить).",
+                "Купле_ый|нн|н|От глагола сов. вида (купить)."
+            ],
+            o_e_root: [
+                "Ш_пот|ё|о|Проверочное слово — шептать (есть чередование с Е).",
+                "Ч_рный|ё|о|Проверочное — чернеть.",
+                "Ж_лтый|ё|о|Проверочное — желтеть.",
+                "Пч_лка|ё|о|Проверочное — пчела.",
+                "Щ_тка|ё|о|Проверочное — щетина.",
+                "Ш_в|о|ё|Исключение (нет проверочного с Е).",
+                "Ш_рох|о|ё|Исключение.",
+                "Крыж_вник|о|ё|Исключение.",
+                "Капюш_н|о|ё|Исключение.",
+                "Обж_ра|о|ё|Исключение.",
+                "Трущ_ба|о|ё|Исключение.",
+                "Ч_порный|о|ё|Исключение.",
+                "Ж_лудь|ё|о|Проверочное — желудевый.",
+                "Расч_ска|ё|о|Проверочное — чесать.",
+                "Ш_мпол|о|ё|Исключение."
+            ],
+            o_e_suff: [
+                "Девч_нка|о|ё|В суффиксе существительного под ударением пишем О.",
+                "Мальч_нка|о|ё|Суффикс под ударением.",
+                "Реч_нка|о|ё|Суффикс под ударением.",
+                "Собач_нка|о|ё|Суффикс под ударением.",
+                "Горош_к|е|о|Без ударения пишем Е.",
+                "Ореш_к|е|о|Без ударения пишем Е.",
+                "Холщ_вый|о|ё|В суффиксе прилагательного под ударением О.",
+                "Плюш_вый|е|о|Без ударения пишем Е.",
+                "Свеж_|о|ё|На конце наречий под ударением О.",
+                "Горяч_|о|ё|Под ударением О.",
+                "Певуч_|е|о|Без ударения пишем Е.",
+                "Ещ_|ё|о|Исключение.",
+                "Сгущ_нка|ё|о|В отглагольных словах (суффикс -ЁНВ-) пишем Ё.",
+                "Туш_нка|ё|о|Отглагольное (от тушить).",
+                "Ноч_вка|ё|о|Отглагольное (от ночевать)."
+            ]
+        };
+
+        // Вспомогательная функция для парсинга сжатой базы
+        const parseDB = (arr) => arr.map(str => {
+            const [w, a, wr, r] = str.split('|');
+            return { w, a, wr, r };
+        });
+
+        const CONTENT = {
+            roots: {
+                id: 'roots', title: "Чередующиеся корни", icon: "fa-leaf", color: "emerald",
+                subtopics: [
+                    { id: 'ao', title: 'Корни с А/О', desc: '-гар-/-гор-, -раст-/-рос- и другие', words: parseDB(RAW_DB.roots_ao) },
+                    { id: 'ei', title: 'Корни с Е/И', desc: '-бер-/-бир-, -мер-/-мир- и другие', words: parseDB(RAW_DB.roots_ei) },
+                    { id: 'all', title: 'Все корни сразу', desc: 'Случайные слова на все правила корней', words: [...parseDB(RAW_DB.roots_ao), ...parseDB(RAW_DB.roots_ei)] }
+                ]
+            },
+            prefixes: {
+                id: 'prefixes', title: "Правописание приставок", icon: "fa-puzzle-piece", color: "blue",
+                subtopics: [
+                    { id: 'zs', title: 'Приставки на З/С', desc: 'раз-/рас-, без-/бес- и другие', words: parseDB(RAW_DB.pref_zs) },
+                    { id: 'prepri', title: 'ПРЕ- и ПРИ-', desc: 'Значения приставок', words: parseDB(RAW_DB.pref_prepri) },
+                    { id: 'all', title: 'Все приставки', desc: 'Случайные слова', words: [...parseDB(RAW_DB.pref_zs), ...parseDB(RAW_DB.pref_prepri)] }
+                ]
+            },
+            n_nn: {
+                id: 'n_nn', title: "Н и НН в словах", icon: "fa-font", color: "purple",
+                subtopics: [
+                    { id: 'adj', title: 'В прилагательных', desc: 'Суффиксы -ан-, -ян-, -ин-, -онн-, -енн-', words: parseDB(RAW_DB.n_adj) },
+                    { id: 'part', title: 'В причастиях', desc: 'Отглагольные слова и исключения', words: parseDB(RAW_DB.n_part) },
+                    { id: 'all', title: 'Все случаи Н/НН', desc: 'Перемешанные правила', words: [...parseDB(RAW_DB.n_adj), ...parseDB(RAW_DB.n_part)] }
+                ]
+            },
+            o_e_ship: {
+                id: 'o_e_ship', title: "О / Ё после шипящих", icon: "fa-fire", color: "orange",
+                subtopics: [
+                    { id: 'root', title: 'В корне слова', desc: 'Подбираем однокоренные', words: parseDB(RAW_DB.o_e_root) },
+                    { id: 'suff', title: 'В суффиксах и окончаниях', desc: 'Ударение решает всё', words: parseDB(RAW_DB.o_e_suff) },
+                    { id: 'all', title: 'Все правила на О/Ё', desc: 'Полный тест', words: [...parseDB(RAW_DB.o_e_root), ...parseDB(RAW_DB.o_e_suff)] }
+                ]
+            },
+            tsya: {
+                id: 'tsya', title: "-ТСЯ и -ТЬСЯ в глаголах", icon: "fa-question", color: "amber",
+                subtopics: null, // Нет подразделов
+                words: parseDB(RAW_DB.tsya_all)
+            }
+        };
+
+        /* --- STATE --- */
+        const AppState = {
+            user: { name: '', avatar: 'user-astronaut', gender: 'male', grades: [], history: [], errors: [] },
+            currentTopic: null,
+            currentSubtopicTitle: "",
+            currentWords: [],
+            mode: 'practice',
+            difficulty: 'easy',
+            quizData: [],
+            currentIndex: 0,
+            correctCount: 0,
+            timerId: null,
+            globalTimerId: null,
+            globalTimeLeft: 180,
+            errorsFixedInRun: 0,
+            errorsMadeInRun: []
+        };
+
+        /* --- USER & STORAGE --- */
+        const User = {
+            init() {
+                const saved = localStorage.getItem('gramota68_user_v3');
+                if (saved) {
+                    try {
+                        AppState.user = JSON.parse(saved);
+                        if (AppState.user.name) {
+                            UI.updateHeader();
+                            Navigation.show('topics');
+                            return;
+                        }
+                    } catch(e) { console.error("Corrupt save data"); }
+                }
+
+                this.setupSelectionUI('auth-ava-btn', 'avatar');
+                this.setupSelectionUI('auth-gen-btn', 'gender');
+                Navigation.show('welcome');
+            },
+            setupSelectionUI(className, field) {
+                document.querySelectorAll('.'+className).forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.'+className).forEach(b => {
+                            b.classList.remove('active', 'border-indigo-500', 'bg-indigo-100', 'text-indigo-600', 'border-blue-500', 'bg-blue-100', 'text-blue-600');
+                            b.classList.add('border-transparent', 'text-slate-400', 'bg-white', 'border-slate-200');
+                        });
+                        const t = e.currentTarget;
+                        t.classList.remove('border-transparent', 'border-slate-200', 'text-slate-400', 'bg-white');
+
+                        if(field === 'avatar') t.classList.add('active', 'border-indigo-500', 'bg-indigo-100', 'text-indigo-600');
+                        if(field === 'gender') t.classList.add('active', 'border-blue-500', 'bg-blue-100', 'text-blue-600');
+
+                        AppState.user[field] = t.dataset.val;
+                    });
+                });
+            },
+            register() {
+                const name = document.getElementById('auth-name').value.trim();
+                if(name.length < 2) { alert("Имя должно быть не короче 2 букв!"); return; }
+                AppState.user.name = name;
+                this.save();
+                UI.updateHeader();
+                Navigation.show('topics');
+            },
+            save() {
+                localStorage.setItem('gramota68_user_v3', JSON.stringify(AppState.user));
+            },
+            logError(q) {
+                const exists = AppState.user.errors.find(e => e.w === q.w);
+                if(!exists) {
+                    AppState.user.errors.unshift({ ...q, d: new Date().toLocaleDateString() });
+                    if(AppState.user.errors.length > 50) AppState.user.errors.pop();
+                    this.save();
+                }
+            },
+            removeError(wordStr) {
+                AppState.user.errors = AppState.user.errors.filter(e => e.w !== wordStr);
+                this.save();
+            },
+            addExamResult(topicTitle, grade, correct, total) {
+                AppState.user.history.unshift({
+                    topic: topicTitle,
+                    grade: grade,
+                    correct: correct,
+                    total: total,
+                    date: new Date().toLocaleDateString()
+                });
+                if(AppState.user.history.length > 20) AppState.user.history.pop();
+                AppState.user.grades.push(grade);
+                this.save();
+            },
+            saveEdits() {
+                const name = document.getElementById('edit-name').value.trim();
+                if(name.length >= 2) AppState.user.name = name;
+
+                const avaBtn = document.querySelector('.edit-ava-btn.border-indigo-500');
+                if(avaBtn) AppState.user.avatar = avaBtn.dataset.val;
+
+                const genBtn = document.querySelector('.edit-gen-btn.bg-blue-100, .edit-gen-btn.bg-pink-100');
+                if(genBtn) AppState.user.gender = genBtn.dataset.val;
+
+                this.save();
+                UI.updateHeader();
+                UI.renderStats();
+                UI.closeEditModal();
+            }
+        };
+
+        /* --- NAVIGATION --- */
+        const Navigation = {
+            show(screenId) {
+                document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+                const el = document.getElementById(`screen-${screenId}`);
+                if(el) {
+                    el.classList.remove('hidden');
+                    // Перезапуск анимации
+                    el.classList.remove('animate-slide');
+                    void el.offsetWidth;
+                    el.classList.add('animate-slide');
+                }
+
+                const header = document.getElementById('main-header');
+                if(screenId === 'welcome') header.classList.add('hidden');
+                else header.classList.remove('hidden');
+
+                if(screenId === 'topics') UI.renderTopics();
+                if(screenId === 'stats') UI.renderStats();
+            }
+        };
+
+        /* --- QUIZ ENGINE --- */
+        const Quiz = {
+            selectTopic(topicKey) {
+                const topic = CONTENT[topicKey];
+                AppState.currentTopic = topic;
+
+                if (topic.subtopics && topic.subtopics.length > 0) {
+                    UI.renderSubtopics(topic);
+                    Navigation.show('subtopics');
+                } else {
+                    AppState.currentSubtopicTitle = topic.title;
+                    AppState.currentWords = topic.words;
+                    document.getElementById('diff-topic-name').innerText = topic.title;
+                    Navigation.show('difficulty');
+                }
+            },
+            selectSubtopic(subtopicId) {
+                const sub = AppState.currentTopic.subtopics.find(s => s.id === subtopicId);
+                AppState.currentSubtopicTitle = AppState.currentTopic.title + " / " + sub.title;
+                AppState.currentWords = sub.words;
+                document.getElementById('diff-topic-name').innerText = AppState.currentSubtopicTitle;
+                Navigation.show('difficulty');
+            },
+            startMode(mode, diff) {
+                AppState.mode = mode;
+                AppState.currentIndex = 0;
+                AppState.correctCount = 0;
+
+                let pool = [];
+
+                if (mode === 'practice') {
+                    AppState.difficulty = diff;
+                    pool = [...AppState.currentWords].sort(() => Math.random() - 0.5);
+                    AppState.quizData = pool.slice(0, 10);
+                }
+                else if (mode === 'exam') {
+                    pool = [...AppState.currentWords].sort(() => Math.random() - 0.5);
+                    while(pool.length < 20) { // Защита если слов в пуле меньше 20
+                        pool = pool.concat([...AppState.currentWords].sort(() => Math.random() - 0.5));
+                    }
+                    AppState.quizData = pool.slice(0, 20);
+                    AppState.globalTimeLeft = 180;
+                }
+                else if (mode === 'errors') {
+                    AppState.quizData = [...AppState.user.errors].sort(() => Math.random() - 0.5);
+                    AppState.errorsFixedInRun = 0;
+                    AppState.errorsMadeInRun = [];
+                }
+
+                Navigation.show('quiz');
+                this.setupUIForMode();
+                this.loadQuestion();
+
+                if (mode === 'exam') this.startGlobalTimer();
+            },
+            setupUIForMode() {
+                const hp = document.getElementById('quiz-header-practice');
+                const he = document.getElementById('quiz-header-exam');
+                const tc = document.getElementById('timer-container');
+
+                if(AppState.mode === 'exam') {
+                    hp.classList.add('hidden');
+                    he.classList.remove('hidden');
+                    tc.classList.add('hidden');
+                } else {
+                    hp.classList.remove('hidden');
+                    he.classList.add('hidden');
+                    if(AppState.mode === 'practice' && AppState.difficulty === 'hard') tc.classList.remove('hidden');
+                    else tc.classList.add('hidden');
+
+                    document.getElementById('quiz-topic-name').innerText = AppState.mode === 'errors' ? "Работа над ошибками" : AppState.currentSubtopicTitle;
+                }
+            },
+            loadQuestion() {
+                const q = AppState.quizData[AppState.currentIndex];
+                const total = AppState.quizData.length;
+
+                if(AppState.mode === 'exam') {
+                    document.getElementById('exam-progress-text').innerText = `${AppState.currentIndex + 1} / ${total}`;
+                } else {
+                    document.getElementById('quiz-progress-text').innerText = `Вопрос ${AppState.currentIndex + 1} из ${total}`;
+                }
+
+                // Обработка слов с пробелами (например "Деревя_ый (стул)")
+                const wordParts = q.w.split(' ');
+                let displayWord = wordParts[0].replace('_', '<span class="border-b-4 border-slate-300 w-8 md:w-10 inline-block mx-1"></span>');
+                if(wordParts.length > 1) {
+                    displayWord += ` <span class="text-slate-400 font-semibold text-2xl md:text-3xl ml-2">${wordParts.slice(1).join(' ')}</span>`;
+                }
+
+                document.getElementById('word-display').innerHTML = displayWord;
+
+                document.getElementById('feedback-box').classList.add('hidden');
+                document.getElementById('next-btn-container').classList.add('hidden');
+
+                const opts = [q.a, q.wr].sort(() => Math.random() - 0.5);
+                const grid = document.getElementById('options-grid');
+                grid.innerHTML = '';
+                opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn bg-white border-2 border-slate-200 py-6 rounded-[24px] text-3xl font-800 text-slate-700 uppercase";
+                    btn.innerText = opt;
+                    btn.onclick = () => this.check(opt, btn, wordParts.length > 1 ? wordParts.slice(1).join(' ') : "");
+                    grid.appendChild(btn);
+                });
+
+                if(AppState.mode === 'practice' && AppState.difficulty === 'hard') {
+                    this.startQuestionTimer(7);
+                }
+            },
+            check(selected, btn, contextStr) {
+                this.freezeQuestionTimer();
+
+                const q = AppState.quizData[AppState.currentIndex];
+                const isCorrect = selected.toLowerCase() === q.a.toLowerCase();
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(b => b.disabled = true);
+
+                if(AppState.mode === 'exam') {
+                    if(isCorrect) AppState.correctCount++;
+                    else User.logError(q);
+
+                    btn.classList.add(isCorrect ? 'correct-anim' : 'wrong-anim');
+                    setTimeout(() => this.next(), 400);
+                    return;
+                }
+
+                const wordBase = q.w.split(' ')[0];
+                const contextHtml = contextStr ? ` <span class="text-slate-400 font-semibold text-2xl md:text-3xl ml-2">${contextStr}</span>` : "";
+
+                if(isCorrect) {
+                    btn.classList.add('correct-anim');
+                    AppState.correctCount++;
+
+                    document.getElementById('word-display').innerHTML = wordBase.replace('_', `<span class="text-emerald-500 border-b-4 border-emerald-500 uppercase">${q.a}</span>`) + contextHtml;
+
+                    if(AppState.mode === 'errors') {
+                        if(!AppState.errorsMadeInRun.includes(q.w)) {
+                            AppState.errorsFixedInRun++;
+                            User.removeError(q.w);
+                        }
+                    }
+                    this.showFeedback(true, "Верно! " + q.r);
+                } else {
+                    btn.classList.add('wrong-anim');
+                    buttons.forEach(b => { if(b.innerText.toLowerCase() === q.a.toLowerCase()) b.classList.add('correct-anim'); });
+
+                    document.getElementById('word-display').innerHTML = wordBase.replace('_', `<span class="text-rose-500 border-b-4 border-rose-500 uppercase">${selected}</span>`) + contextHtml;
+
+                    if(AppState.mode === 'errors') {
+                        AppState.errorsMadeInRun.push(q.w);
+                    } else {
+                        User.logError(q);
+                    }
+                    this.showFeedback(false, `Правильно: <b>${q.a.toUpperCase()}</b>. ${q.r}`);
+                }
+            },
+            showFeedback(isCorrect, text) {
+                const fb = document.getElementById('feedback-box');
+                fb.innerHTML = text;
+                fb.className = `mt-8 p-5 rounded-2xl text-sm font-bold text-left border ${isCorrect ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`;
+                fb.classList.remove('hidden');
+                document.getElementById('next-btn-container').classList.remove('hidden');
+            },
+            next() {
+                AppState.currentIndex++;
+                if(AppState.currentIndex < AppState.quizData.length) {
+                    this.loadQuestion();
+                } else {
+                    this.finish();
+                }
+            },
+            abort() {
+                clearInterval(AppState.timerId);
+                clearInterval(AppState.globalTimerId);
+                Navigation.show('topics');
+            },
+
+            startQuestionTimer(seconds) {
+                clearInterval(AppState.timerId);
+                const bar = document.getElementById('timer-bar');
+                bar.style.transition = 'none';
+                bar.style.width = '100%';
+                void bar.offsetWidth;
+                bar.style.transition = `width ${seconds}s linear`;
+                bar.style.width = '0%';
+
+                AppState.timerId = setTimeout(() => {
+                    const buttons = document.querySelectorAll('.option-btn');
+                    buttons.forEach(b => b.disabled = true);
+                    const q = AppState.quizData[AppState.currentIndex];
+                    buttons.forEach(b => { if(b.innerText.toLowerCase() === q.a.toLowerCase()) b.classList.add('correct-anim'); else b.classList.add('opacity-50'); });
+                    User.logError(q);
+                    this.showFeedback(false, "Время вышло! " + q.r);
+                }, seconds * 1000);
+            },
+            freezeQuestionTimer() {
+                clearInterval(AppState.timerId);
+                const bar = document.getElementById('timer-bar');
+                const computedWidth = window.getComputedStyle(bar).width;
+                bar.style.transition = 'none';
+                bar.style.width = computedWidth;
+            },
+            startGlobalTimer() {
+                clearInterval(AppState.globalTimerId);
+                this.updateGlobalTimerText();
+                AppState.globalTimerId = setInterval(() => {
+                    AppState.globalTimeLeft--;
+                    this.updateGlobalTimerText();
+                    if(AppState.globalTimeLeft <= 0) {
+                        clearInterval(AppState.globalTimerId);
+                        this.finish();
+                    }
+                }, 1000);
+            },
+            updateGlobalTimerText() {
+                const m = Math.floor(AppState.globalTimeLeft / 60);
+                const s = AppState.globalTimeLeft % 60;
+                const el = document.getElementById('exam-timer-text');
+                el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if(AppState.globalTimeLeft < 30) el.classList.add('text-rose-400', 'animate-pulse');
+                else el.classList.remove('text-rose-400', 'animate-pulse');
+            },
+
+            finish() {
+                clearInterval(AppState.timerId);
+                clearInterval(AppState.globalTimerId);
+
+                const total = AppState.quizData.length;
+                const correct = AppState.correctCount;
+                const ratio = correct / total;
+                let grade = 2;
+                if(ratio >= 0.9) grade = 5;
+                else if(ratio >= 0.75) grade = 4;
+                else if(ratio >= 0.5) grade = 3;
+
+                const bg = document.getElementById('res-grade-bg');
+                const title = document.getElementById('res-title');
+                const desc = document.getElementById('res-desc');
+                const actions = document.getElementById('res-actions');
+
+                bg.className = "w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl text-white shadow-xl transition-colors";
+                document.getElementById('res-error-stats').classList.add('hidden');
+                document.getElementById('res-normal-stats').classList.add('hidden');
+                document.getElementById('res-grade-text').innerText = grade;
+
+                if(grade === 5) { bg.classList.add('bg-emerald-500'); title.innerText = "Отлично!"; title.className="text-3xl font-800 text-emerald-600 mb-2"; }
+                else if(grade === 4) { bg.classList.add('bg-blue-500'); title.innerText = "Хорошо!"; title.className="text-3xl font-800 text-blue-600 mb-2"; }
+                else if(grade === 3) { bg.classList.add('bg-amber-500'); title.innerText = "Пойдет"; title.className="text-3xl font-800 text-amber-600 mb-2"; }
+                else { bg.classList.add('bg-rose-500'); title.innerText = "Плохо"; title.className="text-3xl font-800 text-rose-600 mb-2"; }
+
+                if(AppState.mode === 'exam') {
+                    desc.innerText = "Экзамен завершен. Результат сохранен в профиль.";
+                    document.getElementById('res-normal-stats').classList.remove('hidden');
+                    document.getElementById('res-correct').innerText = correct;
+                    document.getElementById('res-wrong').innerText = total - correct;
+                    User.addExamResult(AppState.currentSubtopicTitle, grade, correct, total);
+
+                    actions.innerHTML = `
+                        <button onclick="Navigation.show('stats')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg transition">Посмотреть ошибки</button>
+                        <button onclick="Navigation.show('topics')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Выбрать тему</button>
+                    `;
+                }
+                else if(AppState.mode === 'errors') {
+                    bg.classList.remove('bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-rose-500');
+                    bg.classList.add('bg-indigo-500');
+                    document.getElementById('res-grade-text').innerHTML = '<i class="fas fa-hammer"></i>';
+
+                    const fixed = AppState.errorsFixedInRun;
+                    const remain = AppState.user.errors.length;
+
+                    if(remain === 0) {
+                        title.innerText = "Ура! Ошибок нет!"; title.className="text-3xl font-800 text-indigo-600 mb-2";
+                        desc.innerText = "Ты исправил абсолютно все свои ошибки. Горжусь тобой!";
+                    } else {
+                        title.innerText = "Тренировка окончена"; title.className="text-3xl font-800 text-indigo-600 mb-2";
+                        desc.innerText = "Часть ошибок исправлена, но есть над чем поработать.";
+                    }
+
+                    document.getElementById('res-error-stats').classList.remove('hidden');
+                    document.getElementById('res-error-text').innerText = `Ошибок исправлено: ${fixed} из ${total}`;
+
+                    let btns = `<button onclick="Navigation.show('stats')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Вернуться в профиль</button>`;
+                    if(remain > 0) {
+                        btns = `<button onclick="Quiz.startMode('errors', null)" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg mb-3 transition">Повторить оставшиеся (${remain})</button>` + btns;
+                    }
+                    actions.innerHTML = btns;
+                }
+                else {
+                    desc.innerText = "Тренировка завершена. Оценка пойдет в средний балл.";
+                    document.getElementById('res-normal-stats').classList.remove('hidden');
+                    document.getElementById('res-correct').innerText = correct;
+                    document.getElementById('res-wrong').innerText = total - correct;
+
+                    AppState.user.grades.push(grade);
+                    User.save();
+
+                    actions.innerHTML = `
+                        <button onclick="Navigation.show('topics')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg transition">Выбрать тему</button>
+                        <button onclick="Navigation.show('stats')" class="w-full bg-white text-slate-600 py-4 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition">Мой профиль</button>
+                    `;
+                }
+
+                UI.updateHeader();
+                Navigation.show('results');
+            }
+        };
+
+        /* --- UI RENDERERS --- */
+        const UI = {
+            updateHeader() {
+                const g = AppState.user.grades;
+                const avg = g.length ? (g.reduce((a,b)=>a+b,0)/g.length).toFixed(1) : "0.0";
+                document.getElementById('nav-score').innerText = avg;
+                document.getElementById('nav-avatar').className = `fas fa-${AppState.user.avatar}`;
+            },
+            renderTopics() {
+                const grid = document.getElementById('topics-grid');
+                grid.innerHTML = '';
+                Object.values(CONTENT).forEach(t => {
+                    // Подсчет общего количества слов в теме
+                    let wordsCount = t.words ? t.words.length : 0;
+                    if(t.subtopics) {
+                        // берем только 'all' чтобы не считать дубли
+                        const allSub = t.subtopics.find(s => s.id === 'all');
+                        if(allSub) wordsCount = allSub.words.length;
+                    }
+
+                    const el = document.createElement('div');
+                    el.className = "glass-card p-6 rounded-[32px] cursor-pointer hover:border-indigo-500 border-2 border-transparent transition group text-center shadow-sm hover:shadow-xl";
+                    el.onclick = () => Quiz.selectTopic(t.id);
+                    el.innerHTML = `
+                        <div class="w-16 h-16 bg-${t.color}-100 text-${t.color}-500 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition">
+                            <i class="fas ${t.icon}"></i>
+                        </div>
+                        <h4 class="font-800 text-xl mb-2 text-slate-800">${t.title}</h4>
+                        <span class="text-indigo-500 font-bold text-xs uppercase tracking-widest">${wordsCount} слов</span>
+                    `;
+                    grid.appendChild(el);
+                });
+            },
+            renderSubtopics(topic) {
+                document.getElementById('subtop-icon').className = `fas ${topic.icon}`;
+                document.getElementById('subtop-icon-container').className = `w-16 h-16 rounded-[24px] flex items-center justify-center text-2xl mx-auto mb-4 bg-${topic.color}-100 text-${topic.color}-500`;
+
+                const list = document.getElementById('subtopics-list');
+                list.innerHTML = '';
+
+                topic.subtopics.forEach(sub => {
+                    const isAll = sub.id === 'all';
+                    const el = document.createElement('button');
+                    el.className = `w-full p-4 rounded-2xl text-left transition group ${isAll ? 'bg-slate-900 border-2 border-slate-800 hover:border-indigo-500 shadow-lg' : 'bg-white border-2 border-slate-200 hover:border-indigo-400 hover:shadow-md'}`;
+                    el.onclick = () => Quiz.selectSubtopic(sub.id);
+
+                    el.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-800 ${isAll ? 'text-white' : 'text-slate-800'} text-lg">${sub.title}</span>
+                            <span class="text-xs font-bold ${isAll ? 'text-indigo-400 bg-indigo-900 px-2 py-1 rounded-lg' : 'text-slate-400 bg-slate-100 px-2 py-1 rounded-lg'}">${sub.words.length} слов</span>
+                        </div>
+                        <span class="text-xs font-semibold ${isAll ? 'text-slate-400' : 'text-slate-500'}">${sub.desc}</span>
+                    `;
+                    list.appendChild(el);
+                });
+            },
+            backFromDifficulty() {
+                if (AppState.currentTopic && AppState.currentTopic.subtopics) {
+                    Navigation.show('subtopics');
+                } else {
+                    Navigation.show('topics');
+                }
+            },
+            renderStats() {
+                document.getElementById('stat-name').innerText = AppState.user.name;
+                document.getElementById('stat-avatar-icon').className = `fas fa-${AppState.user.avatar}`;
+                document.getElementById('stat-gender-role').innerText = AppState.user.gender === 'female' ? 'Ученица 5 класса' : 'Ученик 5 класса';
+
+                const g = AppState.user.grades;
+                document.getElementById('stat-avg-grade').innerText = g.length ? (g.reduce((a,b)=>a+b,0)/g.length).toFixed(1) : "0.0";
+                document.getElementById('stat-exams-count').innerText = AppState.user.history.length;
+
+                const errList = document.getElementById('errors-list');
+                errList.innerHTML = '';
+                document.getElementById('stat-errors-count').innerText = `${AppState.user.errors.length} шт.`;
+                const btnWork = document.getElementById('btn-work-errors');
+
+                if(AppState.user.errors.length === 0) {
+                    errList.innerHTML = '<div class="text-center text-slate-400 py-8"><i class="fas fa-check-circle text-4xl text-emerald-200 mb-3"></i><p class="font-bold">Ошибок нет. Идеально!</p></div>';
+                    btnWork.disabled = true;
+                } else {
+                    btnWork.disabled = false;
+                    AppState.user.errors.forEach(e => {
+                        errList.innerHTML += `
+                            <div class="p-4 bg-white border border-rose-100 rounded-2xl shadow-sm">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-800 text-lg text-slate-800">${e.w.replace('_', '<span class="text-rose-500">_</span>')}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold bg-slate-50 px-2 py-1 rounded">${e.d}</span>
+                                </div>
+                                <p class="text-sm font-bold text-slate-600 bg-slate-50 p-3 rounded-xl border-l-4 border-indigo-400">${e.r}</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                const histList = document.getElementById('exams-list');
+                histList.innerHTML = '';
+                if(AppState.user.history.length === 0) {
+                    histList.innerHTML = '<p class="text-center text-slate-400 font-bold py-8">Ты еще не сдавал экзамены.</p>';
+                } else {
+                    AppState.user.history.forEach(h => {
+                        let color = h.grade === 5 ? 'emerald' : h.grade === 4 ? 'blue' : h.grade === 3 ? 'amber' : 'rose';
+                        histList.innerHTML += `
+                            <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                <div>
+                                    <p class="font-800 text-slate-800 leading-tight">${h.topic}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase">${h.date} • Верно: ${h.correct}/${h.total}</p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-${color}-100 text-${color}-600 flex items-center justify-center font-800 shadow-inner">
+                                    ${h.grade}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            },
+
+            openEditModal() {
+                document.getElementById('edit-modal').classList.remove('hidden');
+                document.getElementById('edit-name').value = AppState.user.name;
+
+                const setupEditBtns = (className, field, activeColors) => {
+                    document.querySelectorAll('.'+className).forEach(btn => {
+                        if(btn.dataset.val === AppState.user[field]) {
+                            btn.className = `${className} ${activeColors} font-bold text-sm transition`;
+                            if(field==='avatar') btn.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else btn.classList.add('flex-1','py-2','rounded-xl');
+                        } else {
+                            btn.className = `${className} bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm transition hover:bg-slate-50`;
+                            if(field==='avatar') btn.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else btn.classList.add('flex-1','py-2','rounded-xl');
+                        }
+
+                        btn.onclick = (e) => {
+                            document.querySelectorAll('.'+className).forEach(b => {
+                                b.className = `${className} bg-white border-2 border-slate-200 text-slate-400 font-bold text-sm transition hover:bg-slate-50`;
+                                if(field==='avatar') b.classList.add('w-12','h-12','rounded-xl','text-lg');
+                                else b.classList.add('flex-1','py-2','rounded-xl');
+                            });
+                            e.currentTarget.className = `${className} ${activeColors} font-bold text-sm transition`;
+                            if(field==='avatar') e.currentTarget.classList.add('w-12','h-12','rounded-xl','text-lg');
+                            else e.currentTarget.classList.add('flex-1','py-2','rounded-xl');
+                        };
+                    });
+                };
+
+                setupEditBtns('edit-ava-btn', 'avatar', 'border-2 border-indigo-500 bg-indigo-100 text-indigo-600');
+
+                document.querySelectorAll('.edit-gen-btn').forEach(btn => {
+                    const isActive = btn.dataset.val === AppState.user.gender;
+                    const colors = btn.dataset.val === 'male' ? 'border-2 border-blue-500 bg-blue-100 text-blue-600' : 'border-2 border-pink-500 bg-pink-100 text-pink-600';
+                    btn.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition ${isActive ? colors : 'bg-white border-2 border-slate-200 text-slate-400 hover:bg-slate-50'}`;
+
+                    btn.onclick = (e) => {
+                        document.querySelectorAll('.edit-gen-btn').forEach(b => b.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition bg-white border-2 border-slate-200 text-slate-400 hover:bg-slate-50`);
+                        e.currentTarget.className = `edit-gen-btn flex-1 py-2 rounded-xl font-bold text-sm transition ${colors}`;
+                    }
+                });
+            },
+            closeEditModal() {
+                document.getElementById('edit-modal').classList.add('hidden');
+            }
+        };
+
+        window.onload = () => { User.init(); };
+    </script>
+</body>
+</html>
